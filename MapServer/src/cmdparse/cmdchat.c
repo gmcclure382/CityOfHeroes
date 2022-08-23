@@ -43,7 +43,7 @@
 #include "entity/SgrpServer.h"
 #include "gameSys/raidmapserver.h"
 #include "gameSys/sgraid.h"
-#include "reward.h"
+#include "Reward.h"
 #include "entity/entStrings.h"
 #include "comm_game.h"
 #include "auth/authUserData.h"
@@ -51,11 +51,11 @@
 #include "player/badges_server.h"
 #include "dbcomm/staticMapInfo.h"
 #include "entity/teamup.h"
-#include <utilitieslib/language/messagestoreutil.h>
-#include "gameSys/turnstile.h"
+#include <utilitieslib/language/MessageStoreUtil.h>
+#include "gameSys/Turnstile.h"
 #include "container/containerbroadcast.h"
 #include "entity/character_eval.h"
-#include "gamesys/endgameraid.h"
+#include "gameSys/EndGameRaid.h"
 #include "door.h"
 
 
@@ -4998,7 +4998,7 @@ void cmdOldChatCheckCmds(void)
             for (m=0; m<ARRAY_SIZE(tmp_var_list) && !b; m++) {
                 if (dd->ptr == tmp_var_list[m]) {
 /*                    Errorf("\
-Found command \"%s\" in cmdChat.c using tmp_* but not marked as CMDF_HIDEVARS.\nThis means that if someone types the \
+Found command \"%s\" in cmdchat.c using tmp_* but not marked as CMDF_HIDEVARS.\nThis means that if someone types the \
 command with no parameters it will show the value of the tmp_* variable (which may have been the parameter \
 to someone else's command if this is a server-side command), and will fail to display the handy usage \
 instructions.", cmd->name); */

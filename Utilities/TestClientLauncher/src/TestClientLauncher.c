@@ -9,7 +9,7 @@
 #include "DlgMain.h"
 #include "DlgText.h"
 #include <utilitieslib/utils/RegistryReader.h>
-#include <utilitieslib/components/EArray.h>
+#include <utilitieslib/components/earray.h>
 #include <utilitieslib/assert/assert.h>
 #include <utilitieslib/components/StashTable.h>
 #include "PipeServer.h"
@@ -17,14 +17,14 @@
 #include <utilitieslib/utils/file.h>
 #include <process.h>
 #include <crtdbg.h>
-#include <CommCtrl.h>
+#include <commctrl.h>
 #include <time.h>
 #include <utilitieslib/utils/textparser.h>
 #include <utilitieslib/utils/ListView.h>
 #include <utilitieslib/version/AppVersion.h>
 #include <utilitieslib/utils/MemoryMonitor.h>
 #include <utilitieslib/utils/StringUtil.h>
-#include "TCHAR.H"
+#include "tchar.h"
 
 
 /*
@@ -159,6 +159,7 @@ void sendMessageToSlaveLauncher(ChildInfo *cisl, char *command, char *buf)
     assert(cisl->status == STATUS_SLAVE_LAUNCHER);
     PipeServerSendMessage(pipe_server, cisl->uid, "%s %s", command, buf);
 }
+
 
 void launchNewClientOnSlave(char *host) {
     int i;
@@ -985,4 +986,3 @@ TCHAR *TCharFromCharStatic(char const *src)
     static TCHAR buf[1024];
     return TCharFromChar(buf,src,ARRAY_SIZE(buf));
 }
-

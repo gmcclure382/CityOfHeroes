@@ -11,7 +11,7 @@
 #include <direct.h>
 #include "testClientInclude.h"
 #include "tchar.h"
-#include <utilitieslib/utils/stringutil.h>
+#include <utilitieslib/utils/StringUtil.h>
 
 HWND    hwnd;
 static HDC        hDC;
@@ -31,6 +31,8 @@ void windowSize(int *width,int *height)
     *width    = rect.right - rect.left;
     *height    = rect.bottom - rect.top;
 }
+
+
 
 void windowClientSize(int *width, int *height){
     RECT clientRect;
@@ -253,5 +255,3 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
     newConsoleWindow();
     return main(argc,argv);
 }
-
-

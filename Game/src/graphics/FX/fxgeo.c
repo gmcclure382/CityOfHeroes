@@ -29,9 +29,9 @@
 #include "graphics/light.h"
 #include "seq/seqanimate.h"
 #include "sound/sound.h"
-#include <utilitieslib/components/memorypool.h>
+#include <utilitieslib/components/MemoryPool.h>
 #include "cmdparse/cmdgame.h"
-#include <utilitieslib/components/Earray.h>
+#include <utilitieslib/components/earray.h>
 #include "gridcoll/gridcoll.h"
 #include <utilitieslib/utils/strings_opt.h>
 #include "graphics/gfx.h" //for gfxsetviewmat
@@ -70,7 +70,7 @@
 int debug_fxgeo_count;
 extern FxEngine fx_engine;
 
-void fxGeoUpdateAnimationColoring(FxGeo *fxgeo, F32 age);
+static void fxGeoUpdateAnimationColoring(FxGeo *fxgeo, F32 age);
 
 extern TokenizerParseInfo ParseFxBhvr[];
 

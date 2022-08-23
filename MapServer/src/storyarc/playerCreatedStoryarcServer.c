@@ -23,7 +23,7 @@
 #include "entity/entGameActions.h"
 #include "entity/CustomVillainGroup.h"
 #include "entity/character_eval.h"
-#include "playerCreatedStoryArcServer.h"
+#include "playerCreatedStoryarcServer.h"
 #include "comm_game.h"
 #include "mission/MissionSearch.h"
 #include "comm_backend.h"
@@ -39,7 +39,7 @@
 #include "missionServerMapTest.h"
 #include "filter/validate_name.h"
 #include "door.h"
-#include <zlib/zlib.h>
+#include "zlib.h"
 
 
 typedef struct PlayerArc
@@ -2563,7 +2563,7 @@ void missionserver_map_receiveArcData(Packet *pak_in)
                 TaskForceArchitectStart(e, arcdata_unzipped, arcid, test, s_ArchitectFlagsFromHonors(rating.honors, devchoice), authorid);
                 if(client && isDevelopmentMode() )
                 {
-                    ContactDebugInteract(client, "Player_Created/MissionArchitectContact.contact", 0);
+                    ContactDebugInteract(client, "Player_Created/MissionArchitectcontact.contact", 0);
                 }
                 SAFE_FREE(arcdata_unzipped);
             }

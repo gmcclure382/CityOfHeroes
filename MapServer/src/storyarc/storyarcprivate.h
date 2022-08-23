@@ -13,7 +13,7 @@
 #define __STORYARCPRIVATE_H
 
 // every story-related file needs access to these basics:
-#include "storyarcInterface.h"
+#include "storyarcinterface.h"
 #include "storyarcutil.h"
 #include <utilitieslib/utils/textparser.h>
 #include <utilitieslib/utils/scriptvars.h>
@@ -40,7 +40,7 @@
 #include "storyarc.h"
 #include "clue.h"
 #include "storyinfo.h"
-#include "storysend.h"
+#include "storySend.h"
 #include "generator/encounterPrivate.h"
 #include "storyarc/storyarcCommon.h"
 #include "storyarc/zowieCommon.h"
@@ -142,7 +142,7 @@ typedef enum VillainPacingEnum {
 } VillainPacingEnum;
 
 ///////////////////////////////////////////////////////////////////////////////
-// server side version of StoryarcAlliance in uiContactDialog.h
+// server side version of StoryarcAlliance in uicontactDialog.h
 typedef enum StoryarcAlliance {
     SA_ALLIANCE_BOTH,
     SA_ALLIANCE_HERO,

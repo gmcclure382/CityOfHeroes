@@ -1,6 +1,6 @@
 /*
  *
- *    turnstileCommon.c - Copyright 2010 NC Soft
+ *    TurnstileCommon.c - Copyright 2010 NC Soft
  *        All Rights Reserved
  *        Confidential property of NC Soft
  *
@@ -13,8 +13,8 @@
 #include <utilitieslib/components/earray.h>
 #include <utilitieslib/network/sock.h>
 #include <utilitieslib/assert/assert.h>
-#include "entity/teamcommon.h"
-#include "turnstileservercommon.h"
+#include "entity/teamCommon.h"
+#include "TurnstileServerCommon.h"
 #include <math.h>
 #if SERVER
 #include "entity/character_eval.h"

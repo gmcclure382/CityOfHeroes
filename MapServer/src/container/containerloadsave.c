@@ -4,7 +4,7 @@
  *     Confidential Property of Cryptic Studios
  ***************************************************************************/
 #include <utilitieslib/assert/assert.h>
-#include "auction/auction.h"
+#include "auction/Auction.h"
 #include <utilitieslib/network/crypt.h>
 #include <utilitieslib/components/HashFunctions.h>
 #include "entity/Concept.h"
@@ -56,7 +56,7 @@
 #include "player/BadgeStats.h"
 #include "mapgroup.h"
 #include "cmdparse/cmdservercsr.h"
-#include "reward.h"
+#include "Reward.h"
 #include "containerArena.h"
 #include "gameSys/arenamap.h"
 #include "gameComm/trayCommon.h"
@@ -1248,7 +1248,7 @@ StructDesc tf_storyarc_desc[] =
 };
 
 // ***********************************************************************************
-// IMPORTANT: Make sure you also update this in containersupergroup.c sg_task_line_desc
+// IMPORTANT: Make sure you also update this in containerSupergroup.c sg_task_line_desc
 // Yes this is a terrible hack, but its the best option for now
 // ***********************************************************************************
 

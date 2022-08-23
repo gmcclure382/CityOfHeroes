@@ -1,4 +1,4 @@
-// entPlayer.h - player specific fields of entity.  Allocated iff ENTTYPE_PLAYER
+// entplayer.h - player specific fields of entity.  Allocated iff ENTTYPE_PLAYER
 
 #ifndef __ENTPLAYER_H
 #define __ENTPLAYER_H
@@ -20,9 +20,9 @@
 #include "entity/gametypes.h"
 #include "entity/attrib_description.h"
 #include "account/AccountData.h"
-#include "entity/rewardtoken.h"
+#include "entity/RewardToken.h"
 #include "auth/auth.h"
-#include "turnstile/turnstileservercommon.h"
+#include "turnstile/TurnstileServerCommon.h"
 
 
 typedef struct DoorAnimState DoorAnimState;

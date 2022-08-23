@@ -29,14 +29,14 @@
 #include "svr/svr_player.h"
 #include "container/team.h"
 #include <utilitieslib/utils/timing.h>
-#include "entity/supergroup.h"
+#include "entity/Supergroup.h"
 #include "gameSys/raidmapserver.h"
 #include "bases/baseserverrecv.h"
 #include "bases/basetogroup.h"
 #include "gridcoll/gridcache.h"
-#include "entity/sgrpServer.h"
+#include "entity/SgrpServer.h"
 #include "bases/baseupkeep.h"
-#include "gamesys/sgraid.h"
+#include "gameSys/sgraid.h"
 #include "gameComm/svr_chat.h"
 #include "language/langServerUtil.h"
 #include "dbcomm/logcomm.h"
@@ -1743,7 +1743,7 @@ void baseCostAndUpkeep(int *cost_out, int *upkeep_out)
 /**********************************************************************func*
  * sgroup_UpdatePrestigeBaseAndUpkeep 
  * NOTE: only locked version for now
- * todo: move to sgrpserver.c after hotfix.
+ * todo: move to SgrpServer.c after hotfix.
  */
 void sgroup_UpdatePrestigeBaseAndUpkeep(Supergroup *sg, int idSgrp, bool locked)
 {

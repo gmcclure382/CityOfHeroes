@@ -26,7 +26,7 @@
 #include <conio.h>
 #include <utilitieslib/utils/MemoryMonitor.h>
 #include <utilitieslib/network/netio_core.h>
-#include "zlib/zlib.h"
+#include <zlib.h>
 #include <utilitieslib/utils/RegistryReader.h>
 #include "storyarc/missionspec.h"
 #include "dbcomm/staticMapInfo.h"
@@ -116,7 +116,7 @@ extern BeaconClientConnection beacon_client_conn;
 
 typedef struct BeaconMapDataPacket BeaconMapDataPacket;
 
-// beaconClientServer.c ---------------------------------------------------------------------------
+// beaconClientserver.c ---------------------------------------------------------------------------
 
 #define COLOR_YELLOW    (COLOR_RED|COLOR_GREEN)
 #define COLOR_WHITE        (COLOR_RED|COLOR_GREEN|COLOR_BLUE)

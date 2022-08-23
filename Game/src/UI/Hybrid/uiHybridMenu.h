@@ -1,6 +1,8 @@
 #ifndef UIHYBRIDMENU_H
 #define UIHYBRIDMENU_H
 
+#include "utilitieslib/stdtypes.h"
+
 typedef struct AtlasTex AtlasTex;
 typedef struct SMFBlock SMFBlock;
 typedef struct ShoppingCart ShoppingCart;

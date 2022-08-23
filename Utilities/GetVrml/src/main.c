@@ -24,7 +24,7 @@
 #include "seq/AutoLOD.h"
 #include <utilitieslib/utils/winutil.h>
 #include <utilitieslib/utils/sysutil.h>
-#include <utilitieslib/components/sharedmemory.h>
+#include <utilitieslib/components/SharedMemory.h>
 
 #include <io.h>
 #include <conio.h>
@@ -81,6 +81,7 @@ static void getFileNames(char * fname, char** fnames, int * cur_fname_count, cha
     }
     _findclose(handle);
 }
+
 
 // Read a text file which contains a list of files, one per line, and add files which match the given extension
 //    to the list.
@@ -1454,4 +1455,3 @@ int main(int argc,char **argv)
     exit(0);
     EXCEPTION_HANDLER_END
 }
-

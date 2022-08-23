@@ -17,7 +17,7 @@
 #include <sys/types.h>
 #include <sys/utime.h>
 #include <utilitieslib/components/SharedMemory.h>
-#include <utilitieslib/utils/fileUtil.h>
+#include <utilitieslib/utils/fileutil.h>
 #include <utilitieslib/network/bindiff.h>
 #include <zlib/zlib.h>
 #include <utilitieslib/network/crypt.h>
@@ -40,6 +40,7 @@ static void Usage()
     printf("\t-b <buildName>: build name, eg \"1950.201102120907.1\"\n");
     printf("\t-nogui: disable all gui\n");
 }
+
 
 int main(int argc,char **argv)
 {
@@ -109,4 +110,3 @@ int main(int argc,char **argv)
     EXCEPTION_HANDLER_END 
     exit(errCode);
 }
-

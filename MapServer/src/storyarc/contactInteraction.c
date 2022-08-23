@@ -1,12 +1,12 @@
 /*\
  *
- *    contactinteraction.h/c - Copyright 2003-2005 Cryptic Studios
+ *    contactInteraction.h/c - Copyright 2003-2005 Cryptic Studios
  *        All Rights Reserved
  *        Confidential property of Cryptic Studios
  *
  *    IO functions for contact dialogs
  *    trainer and unknown contact dialog functions
- *    the normal contact dialog is in contactdialog.c
+ *    the normal contact dialog is in contactDialog.c
  *
  */
 
@@ -37,7 +37,7 @@
 #include "entity/SgrpRewards.h"
 #include "gameSys/arenamap.h"
 #include "auth/authUserData.h"                // authUserMonthsPlayed()
-#include "cmdparse/cmdServer.h"
+#include "cmdparse/cmdserver.h"
 #include "entity/character_inventory.h"
 #include "taskforce.h"
 #include <utilitieslib/language/MessageStoreUtil.h>

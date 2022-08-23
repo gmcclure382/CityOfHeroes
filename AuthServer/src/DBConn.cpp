@@ -4,7 +4,7 @@
 
 #include "DBConn.h"
 #include "resource.h"
-#include "config.h"
+#include "Config.h"
 
 #define RECOVERY_INTERVAL       30000
 #define GLOBALAUTH_REG_ENTRY        "Software\\NCSoft\\GLOBALAUTH"
@@ -21,6 +21,7 @@ DBEnv::DBEnv() : m_lock(eSystemSpinLock, 4000)
     m_pFreeSqlPoolEnd = NULL;
     m_connCount = 0;    
 }
+
 
 DBEnv::~DBEnv()
 {
@@ -676,4 +677,3 @@ void CDBConn::ResetHtmt(void)
     SQLFreeStmt(m_stmt, SQL_UNBIND);
     SQLFreeStmt(m_stmt, SQL_CLOSE);
 }
-

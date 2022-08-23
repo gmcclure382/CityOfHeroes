@@ -16,12 +16,12 @@
 #include <utilitieslib/utils/error.h>
 #include "graphics/font.h"
 #include "UI/uiGame.h"
-#include <utilitieslib/components/Earray.h>
+#include <utilitieslib/components/earray.h>
 #include <utilitieslib/utils/FolderCache.h>
 #include <dsound.h>
 #include "player/player.h"
 #include "entity/entity.h"
-#include "entity/EntPlayer.h"
+#include "entity/entPlayer.h"
 #include "entity/motion.h"
 #include "auth/authUserData.h"
 #include <utilitieslib/utils/strings_opt.h>
@@ -1604,7 +1604,7 @@ static void sndUpdateDebug()
 
     curTime = timerElapsed(sDebugTimer);
 
-    if(sRepeatSound.countdown)
+    if(sRepeatsound.countdown)
     {
         // see if time to trigger next repeat sound (for testing max instance functionality)
         if(curTime >= sRepeatSound.nextTriggerTime)
@@ -1613,7 +1613,7 @@ static void sndUpdateDebug()
             if(sRepeatSound.nextOwner >= SOUND_FX_LAST)
                 sRepeatSound.nextOwner = SOUND_FX_BASE;
             sRepeatSound.nextTriggerTime = curTime + sRepeatSound.interval;
-            sRepeatSound.countdown--;
+            sRepeatsound.countdown--;
         }
     }
 
@@ -1644,7 +1644,7 @@ static void sndUpdateDebug()
 void sndTestRepeat(const char *name, F32 interval, int count)
 {
     strncpy(sRepeatSound.name, name, sizeof(sRepeatSound.name));
-    sRepeatSound.countdown = count;
+    sRepeatsound.countdown = count;
     sRepeatSound.interval = interval;
     sRepeatSound.nextOwner = SOUND_FX_BASE;
     sRepeatSound.nextTriggerTime = 0.f;

@@ -32,8 +32,8 @@
 #include "cmdparse/cmdserver.h"
 #include "gameComm/svr_chat.h"
 #include <utilitieslib/components/StringCache.h>
-#include "entity/supergroup.h"
-#include "entity/sgrpserver.h"
+#include "entity/Supergroup.h"
+#include "entity/SgrpServer.h"
 #include "bases/basesystems.h"
 #include "player/badges_server.h"
 #include "taskforce.h"
@@ -2677,7 +2677,7 @@ void TaskForceArchitectStart( Entity * e, char* pchPlayerArc, int mission_id, in
     int                    i;
     TFArchitectFlags    flags = arc_flags;
 
-    char * contactfile = "Player_Created/MissionArchitectContact.contact";
+    char * contactfile = "Player_Created/MissionArchitectcontact.contact";
 
     contactHandle = ContactGetHandleLoose(contactfile);
     contact = GetContact(contactHandle);

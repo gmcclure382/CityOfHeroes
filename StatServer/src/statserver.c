@@ -41,15 +41,15 @@
 #include <math.h>
 #include <utilitieslib/utils/mathutil.h>
 #include <utilitieslib/components/StringCache.h>
-#include <utilitieslib/components/estring.h>
+#include <utilitieslib/components/EString.h>
 #include <utilitieslib/language/MultiMessageStore.h>
 #include <utilitieslib/language/AppLocale.h>
 #include <utilitieslib/components/StashTable.h>
 #include "entity/load_def.h"
-#include <utilitieslib/components/sharedmemory.h>
+#include <utilitieslib/components/SharedMemory.h>
 #include <utilitieslib/utils/winfiletime.h>
-#include "entity/rewardtoken.h"
-#include "entity/supergroup.h"
+#include "entity/RewardToken.h"
+#include "entity/Supergroup.h"
 #include "container/containerSupergroup.h"
 #include "entity/SgrpServer.h"
 #include "dbcomm/logcomm.h"
@@ -100,6 +100,7 @@ static void StatDbConnect(void)
     }
 #undef DB_CONNECT_TRIES
 }
+
 
 void UpdateStatTitle(void)
 {
@@ -981,4 +982,3 @@ Supergroup *stat_sgrpFromName(char *name, int *pResIdSgrp, bool loadSync)
 
     return res;
 }
-

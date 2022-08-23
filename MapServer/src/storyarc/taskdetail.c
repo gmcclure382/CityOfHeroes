@@ -11,7 +11,7 @@
 
 #include "task.h"
 #include "storyarcprivate.h"
-#include "reward.h"
+#include "Reward.h"
 #include "entity/powers.h"
 #include "comm_game.h"
 #include "entity/entity.h"
@@ -215,7 +215,7 @@ void TaskGenerateDetail(int owner_id, Entity* sg_player, ContactHandle contactHa
         if( task->sahandle.bPlayerCreated )
         {
             // We know this contact
-            char * contactfile = "Player_Created/MissionArchitectContact.contact";
+            char * contactfile = "Player_Created/MissionArchitectcontact.contact";
             contactHandle = ContactGetHandleLoose(contactfile);
         }
     }

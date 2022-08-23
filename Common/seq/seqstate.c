@@ -149,7 +149,7 @@ StateBit stateBits[ MAXSTATES ] =
     {    "PARKOURRUN",    STATE_PARKOUR_RUN,            STATEBIT_CODESET | STATEBIT_PREDICTABLE },
 
 };
-//IMPORTANT NOTE : If you change this list, see bottom of seqState.h for what to do.
+//IMPORTANT NOTE : If you change this list, see bottom of seqstate.h for what to do.
 
 typedef struct StateBitList{
     StateBit ** stateBits;
@@ -226,7 +226,7 @@ void seqLoadStateBits()
     {
         StateBit * statebit = &stateBits[ i ];
         if( statebit->bitNum && statebit->bitNum != i )
-            FatalErrorf( "seqState.h out of synch %i != % i", statebit->bitNum, i );
+            FatalErrorf( "seqstate.h out of synch %i != % i", statebit->bitNum, i );
         
         //TO DO change this to this
         //if( statebit->codeGlobalPtr )

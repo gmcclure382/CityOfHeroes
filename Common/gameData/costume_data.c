@@ -20,7 +20,7 @@
 #include "entity/LoadDefCommon.h"
 #include <utilitieslib/utils/file.h> // isDevelopmentMode()
 #include "entity/classes.h"
-#include <utilitieslib/components/estring.h>
+#include <utilitieslib/components/EString.h>
 #include <utilitieslib/components/StringCache.h>
 #include "account/AccountCatalog.h"
 
@@ -28,7 +28,7 @@
     #include "cmdparse/cmdgame.h"
     #include "UI/uiCostume.h"
     #include "UI/uiTailor.h"
-    #include "UI/uidialog.h"
+    #include "UI/uiDialog.h"
     #include "UI/uiSupercostume.h"
     #include "imageServer.h"
     #include "entity/costume_client.h"
@@ -1045,11 +1045,11 @@ static void reloadCostumesCallback(const char *relpath, int when);
 
 void loadCostumes()
 {
-    char *fileToLoad = "Menu/Costume/Localized/Costume.ctm";
+    char *fileToLoad = "Menu/Costume/Localized/costume.ctm";
 
 //    if (isDevelopmentMode())
     if (game_state.editnpc)
-        fileToLoad = "Menu/Costume/Costume.ctm"; // So we don't have to work in the localized directory
+        fileToLoad = "Menu/Costume/costume.ctm"; // So we don't have to work in the localized directory
 
     writeConsole(OUTPUT_DEBUG, "Loading costume bins");
     if (!ParserLoadFiles(NULL, fileToLoad, "costume.bin", 0, ParseCostumeSet, &gCostumeMaster, NULL, NULL, costume_preprocess))
@@ -1084,10 +1084,10 @@ void loadCostumes()
 
 void reloadCostumes(void)
 {
-    char *fileToLoad = "Menu/Costume/Localized/Costume.ctm";
+    char *fileToLoad = "Menu/Costume/Localized/costume.ctm";
 
     if (game_state.editnpc)
-        fileToLoad = "Menu/Costume/Costume.ctm"; // So we don't have to work in the localized directory
+        fileToLoad = "Menu/Costume/costume.ctm"; // So we don't have to work in the localized directory
 
     loadstart_printf("Reloading Costume..." );
 
@@ -1142,10 +1142,10 @@ static void reloadCostumesCallback(const char *relpath, int when)
 
 void loadCostumes()
 {
-    char *fileToLoad = "Menu/Costume/Localized/Costume.ctm";
+    char *fileToLoad = "Menu/Costume/Localized/costume.ctm";
 
 //    if (isDevelopmentMode())
-//        fileToLoad = "Menu/Costume/Costume.ctm"; // So we don't have to work in the localized directory
+//        fileToLoad = "Menu/Costume/costume.ctm"; // So we don't have to work in the localized directory
 
     loadstart_printf("Loading Costume..." );
 

@@ -4,10 +4,10 @@
 #include <utilitieslib/utils/error.h>
 #include "storyarc/mission.h"
 #include <utilitieslib/utils/strings_opt.h>
-#include "gamecomm/svr_chat.h"
+#include "gameComm/svr_chat.h"
 #include "svr/svr_base.h"
 #include "entity/entVarUpdate.h"
-#include "gamecomm/sendtoclient.h"
+#include "gameComm/sendToClient.h"
 #include "beacon/beaconConnection.h"
 #include <utilitieslib/network/netcomp.h>
 #include "staticMapInfo.h"
@@ -22,7 +22,7 @@
 #include "comm_backend.h"
 #include "group/group.h"
 #include "group/groupProperties.h"
-#include "storyarc/storysend.h"
+#include "storyarc/storySend.h"
 #include "bases/basedata.h"
 #include "bases/bases.h"
 #include "storyarc/contact.h"
@@ -631,7 +631,7 @@ void dbGatherMapLinkInfo()
 
     gatherDoors(&local_doors,"FlashbackDoor",0,DOORTYPE_FLASHBACK_CONTACT);
 
-    //JS:    Something similar is already being done in pnpc.c and locationTask.c.
+    //JS:    Something similar is already being done in pnpc.c and locationtask.c.
     //        They also include error checking.  Maybe this info should be grabbed from
     //        those modules instead.
     gatherDoors(&local_doors,"PersistentNPC",0,DOORTYPE_PERSISTENT_NPC);

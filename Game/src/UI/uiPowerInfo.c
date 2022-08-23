@@ -1,13 +1,13 @@
-#include <utilitieslib/components/Earray.h>         // for StructGetNum
+#include <utilitieslib/components/earray.h>         // for StructGetNum
 #include "player/player.h"
 #include "entity/entity.h"         // for entity
 #include "entity/powers.h"
-#include "entity/EntPlayer.h"
+#include "entity/entPlayer.h"
 #include "entity/character_base.h" // for pchar
 #include "entity/attrib_description.h"
 #include "entity/attrib_names.h"
 #include <utilitieslib/utils/file.h>
-#include <utilitieslib/components/estring.h>
+#include <utilitieslib/components/EString.h>
 #include <utilitieslib/utils/structDefines.h>
 #include "win/input.h"
 
@@ -34,7 +34,7 @@
 #include "uiCombineSpec.h"
 #include <utilitieslib/language/AppLocale.h>
 #include "gameData/PowerNameRef.h"
-#include "gameComm/villainDef.h"
+#include "gameComm/VillainDef.h"
 #include "UI/uiPowerInfo.h"
 #include "uiSlider.h"
 #include "UI/uiGame.h"
@@ -379,19 +379,19 @@ static const char *getRequiresString( const char *estr, const CharacterClass *pC
     if(strstriConst(estr, "kDD_StatusMode_2source.mode?"))
         estrConcatf( &str, "<br>&nbsp;&nbsp;&nbsp;&nbsp;<i><color #aaaa88>%s</i>", textStd("ComboEffectEmpower") );
 
-    if(strstriConst(estr, "Temporary_Powers.Temporary_Powers.Combo_Level_1source.ownPower?!Temporary_Powers.Temporary_Powers.Combo_Level_2source.ownPower?!&&Temporary_Powers.Temporary_Powers.Combo_Level_3source.ownPower?!&&") ||
-        strstriConst(estr, "Temporary_Powers.Temporary_Powers.Combo_Level_1source.ownPower?!&&Temporary_Powers.Temporary_Powers.Combo_Level_2source.ownPower?!&&Temporary_Powers.Temporary_Powers.Combo_Level_3source.ownPower?!&&") )
+    if(strstriConst(estr, "Temporary_Powers.Temporary_powers.combo_Level_1source.ownPower?!Temporary_Powers.Temporary_powers.combo_Level_2source.ownPower?!&&Temporary_Powers.Temporary_powers.combo_Level_3source.ownPower?!&&") ||
+        strstriConst(estr, "Temporary_Powers.Temporary_powers.combo_Level_1source.ownPower?!&&Temporary_Powers.Temporary_powers.combo_Level_2source.ownPower?!&&Temporary_Powers.Temporary_powers.combo_Level_3source.ownPower?!&&") )
     {
         if(!bAssumeDefaults)
             estrConcatf( &str, "<br>&nbsp;&nbsp;&nbsp;&nbsp;<i><color #aaaa88>%s</i>", textStd("ComboEffectBrawling0") );
     }
     else
     {    
-        if(strstriConst(estr, "Temporary_Powers.Temporary_Powers.Combo_Level_1source.ownPower?"))
+        if(strstriConst(estr, "Temporary_Powers.Temporary_powers.combo_Level_1source.ownPower?"))
             estrConcatf( &str, "<br>&nbsp;&nbsp;&nbsp;&nbsp;<i><color #aaaa88>%s</i>", textStd("ComboEffectBrawling1") );
-        if(strstriConst(estr, "Temporary_Powers.Temporary_Powers.Combo_Level_2source.ownPower?"))
+        if(strstriConst(estr, "Temporary_Powers.Temporary_powers.combo_Level_2source.ownPower?"))
             estrConcatf( &str, "<br>&nbsp;&nbsp;&nbsp;&nbsp;<i><color #aaaa88>%s</i>", textStd("ComboEffectBrawling2") );
-        if(strstriConst(estr, "Temporary_Powers.Temporary_Powers.Combo_Level_3source.ownPower?"))
+        if(strstriConst(estr, "Temporary_Powers.Temporary_powers.combo_Level_3source.ownPower?"))
             estrConcatf( &str, "<br>&nbsp;&nbsp;&nbsp;&nbsp;<i><color #aaaa88>%s</i>", textStd("ComboEffectBrawling3") );
     }
 

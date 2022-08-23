@@ -1,6 +1,6 @@
 /*\
  *
- *    teamtask.h/c - Copyright 2003, 2004 Cryptic Studios
+ *    TeamTask.h/c - Copyright 2003, 2004 Cryptic Studios
  *        All Rights Reserved
  *        Confidential property of Cryptic Studios
  *
@@ -19,7 +19,7 @@
 #include "language/langServerUtil.h"
 #include "gameComm/svr_chat.h"
 #include "entity/entity.h"
-#include "entity/supergroup.h"
+#include "entity/Supergroup.h"
 #include "entity/character_eval.h"
 #include "entity/character_level.h"
 #include "cmdparse/cmdserver.h"
