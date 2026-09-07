@@ -35,3 +35,31 @@ The ODBC driver is used by the game server to interface with the SQL Server.
 It's basically the bridge between the game and the database. [ODBC 17
 x86](https://go.microsoft.com/fwlink/?linkid=2361647) is the only driver that's
 supported. Just download and run the installer.
+
+# Usage
+
+For local testing, at the minimum, the DBServer, one MapServer, and the Game
+client need to run together. MapServer and Game won't run without all of the
+game data in pigg archive files or in the data folder. The DBServer needs the
+minimal [servers.cfg](data/server/db/servers.cfg) config file to start it with
+"fake auth" mode that accepts a user without a password.
+
+First start the DBServer
+```batch
+start DBserver.exe
+```
+
+Then, start the MapServer to connect to the DBServer
+```batch
+start MapServer.exe -db 127.0.0.1 -map_id 1
+```
+
+Finally, start the game client to use the localmapserver.
+```batch
+start Game.exe -db 127.0.0.1 -localmapserver 1 -notimeout 1 -noaudio 1
+```
+
+This will enable logging in with a fake account and any password. Creating or
+selecting any character will send them straight to Atlas Park (map ID 1).
+
+**NOTE:** The data needed to run the game will be available soon
