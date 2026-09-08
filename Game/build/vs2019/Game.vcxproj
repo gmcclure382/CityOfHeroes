@@ -386,6 +386,7 @@ copy /Y $(ProjectDir)..\..\..\3rdparty\PhysX\bin\Release\*.dll $(ProjectDir)..\.
     <ClInclude Include="..\..\..\Common\storyarc\missiongeoCommon.h" />
     <ClInclude Include="..\..\..\Common\storyarc\missionMapCommon.h" />
     <ClInclude Include="..\..\..\Common\storyarc\playerCreatedStoryarc.h" />
+    <ClInclude Include="..\..\..\Common\storyarc\playerCreatedStoryarcTypes.h" />
     <ClInclude Include="..\..\..\Common\storyarc\playerCreatedStoryarcValidate.h" />
     <ClInclude Include="..\..\..\Common\storyarc\pnpcCommon.h" />
     <ClInclude Include="..\..\..\Common\storyarc\storyarcCommon.h" />

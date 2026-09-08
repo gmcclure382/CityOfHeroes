@@ -294,6 +294,9 @@
     <ClInclude Include="..\..\..\..\Common\entity\PCC_Critter.h">
       <Filter>Header Files\Common\entity</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\Common\storyarc\playerCreatedStoryarcTypes.h">
+      <Filter>Header Files\Common\storyarc</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\..\Common\storyarc\playerCreatedStoryarcValidate.h">
       <Filter>Header Files\Common\storyarc</Filter>
     </ClInclude>

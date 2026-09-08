@@ -501,6 +501,9 @@
     <ClInclude Include="..\..\include\utilitieslib\utils\sysutil.h">
       <Filter>Public Header Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\utilitieslib\utils\textparser_types.h">
+      <Filter>Public Header Files\utils</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\utilitieslib\utils\textparser.h">
       <Filter>Public Header Files\utils</Filter>
     </ClInclude>

@@ -354,6 +354,7 @@
     <ClInclude Include="..\..\include\utilitieslib\utils\structTokenizer.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\SuperAssert.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\sysutil.h" />
+    <ClInclude Include="..\..\include\utilitieslib\utils\textparser_types.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\textparser.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\textparserUtils.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\tga.h" />
