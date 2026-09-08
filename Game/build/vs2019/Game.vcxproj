@@ -1001,7 +1001,11 @@ copy /Y $(ProjectDir)..\..\..\3rdparty\PhysX\bin\Release\*.dll $(ProjectDir)..\.
     <ClCompile Include="..\..\src\edit\edit_cmd_select.c" />
     <ClCompile Include="..\..\src\edit\edit_context_menu.c" />
     <ClCompile Include="..\..\src\edit\edit_cubemap.c" />
-    <ClCompile Include="..\..\src\edit\edit_drawlines.c" />
+    <ClCompile Include="..\..\src\edit\edit_drawlines.c">
+      <!-- v143 14.44 crashes optimizing showGridExternal. -->
+      <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Disabled</Optimization>
+      <WholeProgramOptimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</WholeProgramOptimization>
+    </ClCompile>
     <ClCompile Include="..\..\src\edit\edit_errcheck.c" />
     <ClCompile Include="..\..\src\edit\edit_info.c" />
     <ClCompile Include="..\..\src\edit\edit_library.c" />
