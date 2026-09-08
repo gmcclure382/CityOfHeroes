@@ -189,8 +189,10 @@ const char* stringFromReference(int ref)
     return NULL;
 }
 
-static int stringCompare(const char **str1, const char **str2)
+static int stringCompare(const void* str1Data, const void* str2Data)
 {
+    const char ** str1 = (const char **)str1Data;
+    const char ** str2 = (const char **)str2Data;
     return stricmp(*str1, *str2);
 }
 

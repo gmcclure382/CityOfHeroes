@@ -362,7 +362,7 @@ static void assertFreezeAllOtherThreads(int resume)
     HANDLE            hThreadSnap    = NULL; 
     BOOL            bRet        = FALSE; 
     THREADENTRY32    te32        = {0}; 
-    typedef HANDLE (WINAPI *tOpenThread)(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwThreadId);
+    typedef HANDLE (WINAPI *tOpenThread)(DWORD dwDesiredAccess, BOOL bInheritHandle, unsigned dwThreadId);
     tOpenThread        pOpenThread;
     HMODULE            hKernel32Dll = LoadLibrary(_T("kernel32.dll"));
 
@@ -995,7 +995,7 @@ static void    wsockStart()
     err = WSAStartup(wVersionRequested, &wsaData); 
 }
 
-DWORD WINAPI listenThreadMain(void *data) {
+unsigned __stdcall listenThreadMain(void *data) {
     struct sockaddr_in    addr_in;
     int port=BASE_LISTEN_PORT;
     int result;
@@ -1174,7 +1174,7 @@ static void sendAssertEmail(void)
 }
 
 // Message handler for about box.
-LRESULT CALLBACK Assert(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK Assert(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
     static int firsttime = TRUE;
     switch (message)
@@ -2049,7 +2049,7 @@ void assertWriteMiniDump(char* filename, PEXCEPTION_POINTERS info)
 {
     HMODULE debugDll;
     HANDLE hThread;
-    DWORD threadId;
+    unsigned threadId;
     DumpThreadParams params;
 
     // Try to load the debug help dll or imagehlp.dll
@@ -2075,7 +2075,7 @@ void assertWriteMiniDump(char* filename, PEXCEPTION_POINTERS info)
     params.filename = filename;
     params.threadId = GetCurrentThreadId();
     hThread = (HANDLE)_beginthreadex(NULL, 0, MiniDumpThread, &params, 0, &threadId);
-    if (INVALID_HANDLE_VALUE != hThread)
+    if (hThread != NULL)
     {
         WaitForSingleObject(hThread, 60000);
         CloseHandle(hThread);

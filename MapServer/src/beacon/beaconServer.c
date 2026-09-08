@@ -2216,12 +2216,17 @@ static void beaconServerCloseMapLogFileHandle(FILE* f){
     fclose(f);
 }
 
+static void beaconServerCloseMapLogFileHandleAdapter(void* arg0)
+{
+    beaconServerCloseMapLogFileHandle((FILE*)arg0);
+}
+
 static void beaconServerCloseMapLogFileHandles(void){
     if(!openMapLogFileHandles){
         return;
     }
     
-    stashTableClearEx(openMapLogFileHandles, NULL, beaconServerCloseMapLogFileHandle);
+    stashTableClearEx(openMapLogFileHandles, NULL, beaconServerCloseMapLogFileHandleAdapter);
 }
 
 static void beaconServerWriteMapLog(const char* dir, const char* format, ...){
@@ -2727,7 +2732,7 @@ static void beaconServerCheckWindow(void){
     }
 }
 
-static DWORD WINAPI beaconServerWindowThread(void* unused){
+static unsigned __stdcall beaconServerWindowThread(void* unused){
     while(1){
         beaconServerCheckWindow();
         Sleep(500);

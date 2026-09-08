@@ -728,7 +728,7 @@ char *getUserName()
 {
     static int gotUserName = 0;
     static char    name[1000];
-    int        name_len = sizeof(name);
+    DWORD      name_len = sizeof(name);
 
     if(!gotUserName)
     {
@@ -1944,17 +1944,21 @@ int createShortcut(char *file, char *out, int icon, char *working_dir, char *arg
 {
     HRESULT hres;
     IShellLinkA *psl;
+    void *createdLink;
     CoInitialize(NULL);
     hres = CoCreateInstance(&CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, 
-                                 &IID_IShellLink, (void **) &psl); 
+                                 &IID_IShellLink, &createdLink);
     if (SUCCEEDED(hres)) 
     { 
-        IPersistFile* ppf; 
+        IPersistFile* ppf;
+        void *persistFile;
+        psl = createdLink;
 
-        hres = psl->lpVtbl->QueryInterface(psl,&IID_IPersistFile, (void **) &ppf); 
+        hres = psl->lpVtbl->QueryInterface(psl,&IID_IPersistFile, &persistFile);
         if (SUCCEEDED(hres)) 
         { 
             char path[MAX_PATH], *tmp;
+            ppf = persistFile;
 
             hres = psl->lpVtbl->SetPath(psl,file); 
 
@@ -2008,13 +2012,23 @@ int createShortcut(char *file, char *out, int icon, char *working_dir, char *arg
 #endif
 
 #ifndef _XBOX
-int spawnProcess(char *cmdLine, int mode)
+intptr_t spawnProcess(char *cmdLine, int mode)
 {
     char *args[100];
-    int ret;
-    tokenize_line_quoted(cmdLine, args, 0);
-    ret = _spawnv(mode, args[0], args);
-    if ( ret < 0 )
+    const char *spawnArgs[ARRAY_SIZE(args) + 1];
+    intptr_t ret;
+    int i;
+    int count = tokenize_line_quoted(cmdLine, args, 0);
+    if (count <= 0)
+    {
+        errno = EINVAL;
+        return -1;
+    }
+    for (i = 0; i < count; ++i)
+        spawnArgs[i] = args[i];
+    spawnArgs[count] = NULL;
+    ret = _spawnv(mode, spawnArgs[0], spawnArgs);
+    if ( ret == -1 )
     {
         switch ( errno )
         {

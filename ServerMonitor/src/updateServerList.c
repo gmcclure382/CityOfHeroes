@@ -93,8 +93,10 @@ static CRITICAL_SECTION sCritSec;
 
 #define DEFAULT_UPDATE_INTERVAL  5.0f  // seconds between update requests
 
-static void targettedRemoteDesktop(ListView *lv, UpdateServerStats *stat, HWND hDlg)
+static void targettedRemoteDesktop(ListView* lv, void* statData, void* hDlgData)
 {
+    UpdateServerStats * stat = (UpdateServerStats *)statData;
+    HWND hDlg = (HWND)hDlgData;
     launchRemoteDesktop(stat->ip, stat->name);
 }
 
@@ -124,6 +126,11 @@ static void setDefaultStatValues(UpdateServerStats *stat)
     stat->listCounter = sStatListCounter;
 }
 
+static void destroyUpdateServerStatsAdapter(void* arg0)
+{
+    destroyUpdateServerStats((UpdateServerStats *)arg0);
+}
+
 static void updateServerListInit()
 {
     int i;
@@ -138,7 +145,7 @@ static void updateServerListInit()
     shardMonLoadConfig("./UpdateServerListConfig.txt");
     listViewDelAllItems(lvUpdateServers, NULL);
 
-    eaClearEx(eaUpdateServerStats, destroyUpdateServerStats);
+    eaClearEx(eaUpdateServerStats, destroyUpdateServerStatsAdapter);
     for (i=0; i<eaSize(&shmConfig.shardList); i++)
     {
         UpdateServerStats *stat = createUpdateServerStats();
@@ -218,7 +225,7 @@ static void parseUpdateServerData(const char* text, UpdateServerData* pData )
     pData->dataRate = atoi( getCactiValue("throughput", text) );
 }
 
-static DWORD WINAPI retrieveDataThread(void* pData)
+static unsigned __stdcall retrieveDataThread(void* pData)
 {
     // steps: 
     //    1. connect to updateserver
@@ -317,13 +324,15 @@ static void updateServerConnectAll()
     }
 }
 
-static void connectSingleWrapper(ListView *lv, UpdateServerStats *stat, void *junk)
+static void connectSingleWrapper(ListView* lv, void* statData, void* junk)
 {
+    UpdateServerStats * stat = (UpdateServerStats *)statData;
     updateServerConnectSingle(stat);
 }
 
-static void disconnectSingleWrapper(ListView *lv, UpdateServerStats *stat, void *junk)
+static void disconnectSingleWrapper(ListView* lv, void* statData, void* junk)
 {
+    UpdateServerStats * stat = (UpdateServerStats *)statData;
     updateServerDisconnect(stat);
 }
 

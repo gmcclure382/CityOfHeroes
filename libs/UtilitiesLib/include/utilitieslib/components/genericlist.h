@@ -17,7 +17,7 @@ int listCheckList(void * headptr, int count);
 void listCopyItem(void * target, void * source, int size);
 void listRemoveMember(void * member, void ** headptr);
 int listLength(void *headptr);
-void listQsort(void ** headptr, int (__cdecl *compare )(const void **, const void **));
+void listQsort(void ** headptr, int (__cdecl *compare )(const void *, const void *));
 int listInList(void *headptr, void *member);
 void *listInsertionSort( void *list, int (*compare)(void *, void *) );
 // End mkproto

@@ -259,8 +259,10 @@ static PlayerPetPower **playerPetPowers;
 static PlayerPet allPet = {0};
 static PlayerPetPower allPetPower = {0};
 
-static int comparePlayerPetPower(const PlayerPet** ppet1, const PlayerPet** ppet2 )
+static int comparePlayerPetPower(const void* ppet1Data, const void* ppet2Data)
 {
+    const PlayerPet** ppet1 = (const PlayerPet**)ppet1Data;
+    const PlayerPet** ppet2 = (const PlayerPet**)ppet2Data;
     Entity * pet1 = entFromId( (*ppet1)->svr_id );
     Entity * pet2 = entFromId( (*ppet2)->svr_id ); 
 
@@ -1389,6 +1391,26 @@ static INLINEDBG void petPowSetActionFollow(void * pet) { petPowSelectAction(pet
 static INLINEDBG void petPowSetActionStay(void * pet)    { petPowSelectAction(pet, kPetAction_Stay); }
 static INLINEDBG void petPowSetActionSpecial(void * pet){ petPowSelectAction(pet, kPetAction_Special); }
 
+static const char * petOptionSimpleTxtAdapter(void* arg0)
+{
+    return petOptionSimpleTxt((void *)arg0);
+}
+
+static const char * petOptionIndividualTxtAdapter(void* arg0)
+{
+    return petOptionIndividualTxt((void *)arg0);
+}
+
+static void petDismissAdapter(void* arg0)
+{
+    petDismiss((Entity *)arg0);
+}
+
+static void petPowDismissAdapter(void* arg0)
+{
+    petPowDismiss((PlayerPetPower *)arg0);
+}
+
 static void initPetContextMenus()
 {
     if( gPetOptionContext )
@@ -1403,8 +1425,8 @@ static void initPetContextMenus()
     sPowerActionArenaContext = contextMenu_Create(NULL);
 
     contextMenu_addTitle( gPetOptionContext, "PetWindowOptions" );
-    contextMenu_addVariableTextCode( gPetOptionContext, 0, 0, petOptionSimple, 0, petOptionSimpleTxt, 0, 0 );
-    contextMenu_addVariableTextCode( gPetOptionContext, 0, 0, petOptionIndividual, 0, petOptionIndividualTxt, 0, 0 );
+    contextMenu_addVariableTextCode( gPetOptionContext, 0, 0, petOptionSimple, 0, petOptionSimpleTxtAdapter, 0, 0 );
+    contextMenu_addVariableTextCode( gPetOptionContext, 0, 0, petOptionIndividual, 0, petOptionIndividualTxtAdapter, 0, 0 );
 
     contextMenu_addIconCheckBox( sActionContext, petActionIsAttack, NULL, petSetActionAttack, NULL, petActions[kPetAction_Attack].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Attack].iconName) );
     contextMenu_addIconCheckBox( sActionContext, petActionIsGoto, NULL, petSetActionGoto, NULL, petActions[kPetAction_Goto].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Goto].iconName) );
@@ -1412,7 +1434,7 @@ static void initPetContextMenus()
     contextMenu_addIconCheckBox( sActionContext, petActionIsStay, NULL, petSetActionStay, NULL, petActions[kPetAction_Stay].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Stay].iconName) );
 
     contextMenu_addDivider( sActionContext );
-    contextMenu_addCode( sActionContext, NULL, NULL, petDismiss, NULL, petActions[kPetAction_Dismiss].cmDisplayName, 0 );
+    contextMenu_addCode( sActionContext, NULL, NULL, petDismissAdapter, NULL, petActions[kPetAction_Dismiss].cmDisplayName, 0 );
 
     contextMenu_addIconCheckBox( sActionArenaContext, petActionIsAttack, NULL, petSetActionAttack, NULL, petActions[kPetAction_Attack].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Attack].iconName) );
     contextMenu_addIconCheckBox( sActionArenaContext, petActionIsGoto, NULL, petSetActionGoto, NULL, petActions[kPetAction_Goto].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Goto].iconName) );
@@ -1428,7 +1450,7 @@ static void initPetContextMenus()
     contextMenu_addIconCheckBox( sPowerActionContext, petPowActionIsFollow, NULL, petPowSetActionFollow, NULL, petActions[kPetAction_Follow].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Follow].iconName) );
     contextMenu_addIconCheckBox( sPowerActionContext, petPowActionIsStay, NULL, petPowSetActionStay, NULL, petActions[kPetAction_Stay].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Stay].iconName) );
     contextMenu_addDivider( sPowerActionContext );
-    contextMenu_addIconCode( sPowerActionContext, NULL, NULL, petPowDismiss, NULL, petActions[kPetAction_Dismiss].cmDisplayName, 0 ,atlasLoadTexture(petActions[kPetAction_Dismiss].iconName));
+    contextMenu_addIconCode( sPowerActionContext, NULL, NULL, petPowDismissAdapter, NULL, petActions[kPetAction_Dismiss].cmDisplayName, 0 ,atlasLoadTexture(petActions[kPetAction_Dismiss].iconName));
 
     contextMenu_addIconCheckBox( sPowerActionArenaContext, petPowActionIsAttack, NULL, petPowSetActionAttack, NULL, petActions[kPetAction_Attack].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Attack].iconName) );
     contextMenu_addIconCheckBox( sPowerActionArenaContext, petPowActionIsGoto, NULL, petPowSetActionGoto, NULL, petActions[kPetAction_Goto].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Goto].iconName) );
@@ -1467,6 +1489,16 @@ int petcm_isRenamable( void * data )
     return CM_HIDE;
 }
 
+static void infoPetAdapter(void* arg0)
+{
+    infoPet((Entity *)arg0);
+}
+
+static void infoPetNumbersAdapter(void* arg0)
+{
+    infoPetNumbers((Entity *)arg0);
+}
+
 ContextMenu * interactPetMenu( void )
 {
     ContextMenu * interactPet = contextMenu_Create( NULL );
@@ -1484,19 +1516,24 @@ ContextMenu * interactPetMenu( void )
     contextMenu_addIconCheckBox( interactPet, petActionIsStay, NULL, petSetActionStay, NULL, petActions[kPetAction_Stay].cmDisplayName, atlasLoadTexture(petActions[kPetAction_Stay].iconName) );
 
     contextMenu_addDivider( interactPet );
-    contextMenu_addIconCode( interactPet, petcm_isDismissable, NULL, petDismiss, NULL, petActions[kPetAction_Dismiss].cmDisplayName, 0,atlasLoadTexture(petActions[kPetAction_Dismiss].iconName));
+    contextMenu_addIconCode( interactPet, petcm_isDismissable, NULL, petDismissAdapter, NULL, petActions[kPetAction_Dismiss].cmDisplayName, 0,atlasLoadTexture(petActions[kPetAction_Dismiss].iconName));
     contextMenu_addCode( interactPet, petcm_isRenamable, NULL, petRenameDialog, 0, "CMRenamePet", 0 );
-    contextMenu_addCode( interactPet, NULL, NULL, infoPet, 0, "CMInfoString", 0 );
-    contextMenu_addCode( interactPet, NULL, NULL, infoPetNumbers, 0, "CMInfoNumbersString", 0 );
+    contextMenu_addCode( interactPet, NULL, NULL, infoPetAdapter, 0, "CMInfoString", 0 );
+    contextMenu_addCode( interactPet, NULL, NULL, infoPetNumbersAdapter, 0, "CMInfoNumbersString", 0 );
     return interactPet;
+}
+
+static int isCurrentTargetAdapter(void)
+{
+    return isCurrentTarget();
 }
 
 ContextMenu * interactSimplePetMenu( void )
 {
-    ContextMenu * interactPet = contextMenu_Create( isCurrentTarget );
+    ContextMenu * interactPet = contextMenu_Create( isCurrentTargetAdapter);
     
-    contextMenu_addCode( interactPet, NULL, NULL, petDismiss, 0, petActions[kPetAction_Dismiss].cmDisplayName, 0);
-    contextMenu_addCode( interactPet, NULL, NULL, infoPet, 0, "CMInfoString", 0 );
+    contextMenu_addCode( interactPet, NULL, NULL, petDismissAdapter, 0, petActions[kPetAction_Dismiss].cmDisplayName, 0);
+    contextMenu_addCode( interactPet, NULL, NULL, infoPetAdapter, 0, "CMInfoString", 0 );
 
     return interactPet;
 }

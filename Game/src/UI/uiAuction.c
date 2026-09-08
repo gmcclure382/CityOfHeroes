@@ -219,8 +219,10 @@ void uiAuctionHouseHistoryReceive(Packet *pak)
     }
 }
 
-static int alphabeticalSort( const AuctionKeyWord** left, const AuctionKeyWord** right)
+static int alphabeticalSort(const void* leftData, const void* rightData)
 {
+    const AuctionKeyWord** left = (const AuctionKeyWord**)leftData;
+    const AuctionKeyWord** right = (const AuctionKeyWord**)rightData;
     return stricmp( (*left)->keyword, (*right)->keyword );
 }
 
@@ -1017,8 +1019,10 @@ static SimpleTreeNode * addSimpleNode( SimpleTreeNode *pParent, MultiLevelStashN
     return pNew;
 }
 
-static int nodeSort( const SimpleTreeNode** left, const SimpleTreeNode** right)
+static int nodeSort(const void* leftData, const void* rightData)
 {
+    const SimpleTreeNode** left = (const SimpleTreeNode**)leftData;
+    const SimpleTreeNode** right = (const SimpleTreeNode**)rightData;
     if( stricmp((*left)->name, "OtherString") == 0 )
         return -1;
     else if( stricmp((*right)->name, "OtherString") == 0 )
@@ -1883,8 +1887,10 @@ typedef enum AuctionSortType
     kAuctionSort_NumBidding,
 }AuctionSortType;
 
-static int auction_resultsort( const AuctionItem ** p1, const AuctionItem **p2 )
-{ 
+static int auction_resultsort(const void* p1Data, const void* p2Data)
+{
+    const AuctionItem ** p1 = (const AuctionItem **)p1Data;
+    const AuctionItem ** p2 = (const AuctionItem **)p2Data;
     int sort_type = ABS(s_sort_idx);
 
     //if this matches arc id
@@ -2442,6 +2448,11 @@ static void auctionPostItem(AuctionItem * pItem)
 
 static DialogCheckbox hideFeeDCB[] = { { "HideFeeWarning", 0, kUO_HideFeePrompt}};
 
+static void auctionPostItemAdapter(void * arg0)
+{
+    auctionPostItem((AuctionItem *)arg0);
+}
+
 static F32 drawAuctionInventoryItem( AuctionItem * pItem, int status, int i, F32 x, F32 y, F32 z, F32 wd, F32 sc, int color )
 {
     Entity *e = playerPtr();
@@ -2549,7 +2560,7 @@ static F32 drawAuctionInventoryItem( AuctionItem * pItem, int status, int i, F32
         {
             collisions_off_for_rest_of_frame = 1;
             if( fee > 100000 && !optionGet( kUO_HideFeePrompt ) )
-                dialog( DIALOG_YES_NO, -1, -1, -1, 300, textStd("LargePostingFee", fee), NULL, auctionPostItem, NULL, NULL,0,sendOptions,hideFeeDCB,1,0,0,pItem );
+                dialog( DIALOG_YES_NO, -1, -1, -1, 300, textStd("LargePostingFee", fee), NULL, auctionPostItemAdapter, NULL, NULL,0,sendOptions,hideFeeDCB,1,0,0,pItem );
             else
             {
                 auction_changeItemStatus(pItem->auction_id, price, AuctionInvItemStatus_ForSale);
@@ -2852,7 +2863,7 @@ static void drawAuctionInventory( F32 x, F32 y, F32 z, F32 wd, F32 ht, F32 sc, i
                     int fee = calcAuctionSellFee(total);
                     collisions_off_for_rest_of_frame = 1;
                     if( fee > 100000 && !optionGet( kUO_HideFeePrompt ) )
-                        dialog( DIALOG_YES_NO, -1, -1, -1, 300, textStd("LargePostingFee", fee), NULL, auctionPostItem, NULL, NULL,0,sendOptions,hideFeeDCB,1,0,0,ppLocalInventory[i] );
+                        dialog( DIALOG_YES_NO, -1, -1, -1, 300, textStd("LargePostingFee", fee), NULL, auctionPostItemAdapter, NULL, NULL,0,sendOptions,hideFeeDCB,1,0,0,ppLocalInventory[i] );
                     else
                     {
                         auction_changeItemStatus(ppLocalInventory[i]->auction_id, price, AuctionInvItemStatus_ForSale);
@@ -3230,6 +3241,11 @@ static void auction_SalvageSell( const SalvageItem * pSalvage )
     amountSliderWindowSetupAndDisplay(1, stackSize, NULL, amountSliderDrawCallback, auctionAmountSliderCallback, &addInfo, 0);
 }
 
+static void auction_SalvageSellAdapter(void * arg0)
+{
+    auction_SalvageSell((const SalvageItem *)arg0);
+}
+
 static void auctionDragRecieve(CBox *box)
 {
     Entity * e = playerPtr();
@@ -3291,8 +3307,8 @@ static void auctionDragRecieve(CBox *box)
                                     for( i = 0; i < eaSize(&ppRecipes); i++ )
                                         estrConcatf(&sal_string, "%s<br>", textStd(ppRecipes[i]->ui.pchDisplayName) );
 
-                                    dialogRemove(0,auction_SalvageSell,0);
-                                    dialog( DIALOG_YES_NO, -1, -1, -1, -1, sal_string, NULL, auction_SalvageSell, NULL, NULL,0,sendOptions,deleteUsefulDCB,1,0,0,(void*)salvage); 
+                                    dialogRemove(0, auction_SalvageSellAdapter,0);
+                                    dialog( DIALOG_YES_NO, -1, -1, -1, -1, sal_string, NULL, auction_SalvageSellAdapter, NULL, NULL,0,sendOptions,deleteUsefulDCB,1,0,0,(void*)salvage);
                                     estrDestroy(&sal_string);
                                     eaDestroy(&ppRecipes);
                                 }

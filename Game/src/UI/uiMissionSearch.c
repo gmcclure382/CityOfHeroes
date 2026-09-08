@@ -1696,8 +1696,10 @@ static MissionSearchTab* s_myArcsTab(void)
     return 0; //!!
 }
 
-int missionsearch_sort( const MissionSearchLine ** p1, const MissionSearchLine **p2 )
-{ 
+int missionsearch_sort(const void* p1Data, const void* p2Data)
+{
+    const MissionSearchLine ** p1 = (const MissionSearchLine **)p1Data;
+    const MissionSearchLine ** p2 = (const MissionSearchLine **)p2Data;
     int reverser = 1;
     int sort_type = ABS(s_sort_idx);
 
@@ -1864,10 +1866,15 @@ static void s_deleteArcDialog(MissionSearchLine *line)
     line->deleteme = 1;
 }
 
+static void s_deleteArcDialogAdapter(void * arg0)
+{
+    s_deleteArcDialog((MissionSearchLine *)arg0);
+}
+
 static void s_deleteArc(MissionSearchLine *line)
 {
     assert(!line->id && line->filename);
-    dialog(DIALOG_YES_NO, -1, -1, -1, -1, "MissionSearchReallyDelete", NULL, s_deleteArcDialog, NULL, NULL, DLGFLAG_ARCHITECT, 0, 0, 1, 0, 0, line);
+    dialog(DIALOG_YES_NO, -1, -1, -1, -1, "MissionSearchReallyDelete", NULL, s_deleteArcDialogAdapter, NULL, NULL, DLGFLAG_ARCHITECT, 0, 0, 1, 0, 0, line);
 }
 static void s_deleteCustomCritterDialog(PCC_Critter *pCritter)
 {
@@ -1875,18 +1882,28 @@ static void s_deleteCustomCritterDialog(PCC_Critter *pCritter)
     updateCustomCritterList(&missionMaker);
     populateCVGSS();
 }
+static void s_deleteCustomCritterDialogAdapter(void * arg0)
+{
+    s_deleteCustomCritterDialog((PCC_Critter *)arg0);
+}
+
 static void s_deleteCustomCritter(PCC_Critter *pCritter)
 {
-    dialog(DIALOG_YES_NO, -1, -1, -1, -1, "CustomCritterReallyDelete", NULL, s_deleteCustomCritterDialog, NULL, NULL, DLGFLAG_ARCHITECT, 0, 0, 1, 0, 0, pCritter);
+    dialog(DIALOG_YES_NO, -1, -1, -1, -1, "CustomCritterReallyDelete", NULL, s_deleteCustomCritterDialogAdapter, NULL, NULL, DLGFLAG_ARCHITECT, 0, 0, 1, 0, 0, pCritter);
 }
 static void s_deleteCVGDialog(CustomVG *cvg)
 {
     CVG_removeCustomVillainGroup(cvg->displayName, 1);
     updateCustomCritterList(&missionMaker);
 }
+static void s_deleteCVGDialogAdapter(void * arg0)
+{
+    s_deleteCVGDialog((CustomVG *)arg0);
+}
+
 static void s_deleteCustomVillainGroup(CustomVG *cvg)
 {
-    dialog(DIALOG_YES_NO, -1, -1, -1, -1, "CVGReallyDelete", NULL, s_deleteCVGDialog, NULL, NULL, DLGFLAG_ARCHITECT, 0, 0, 1, 0, 0, cvg);
+    dialog(DIALOG_YES_NO, -1, -1, -1, -1, "CVGReallyDelete", NULL, s_deleteCVGDialogAdapter, NULL, NULL, DLGFLAG_ARCHITECT, 0, 0, 1, 0, 0, cvg);
 }
 void missionsearch_deleteArc(const char *filename)
 {
@@ -1900,13 +1917,18 @@ void missionsearch_deleteArc(const char *filename)
 // uiNet Interface /////////////////////////////////////////////////////////////
 
 
+static void s_destroyCachedSearchLineAdapter(void* arg0)
+{
+    s_destroyCachedSearchLine((MissionSearchLine *)arg0);
+}
+
 void missionsearch_TabClear(MissionSearchPage category, const char *context, int page, int pages)
 {
     MissionSearchTab *tab = missionsearch_GetTabByCategory( category );
 
     if(tab)
     {
-        eaClearEx(&tab->lines, s_destroyCachedSearchLine);
+        eaClearEx(&tab->lines, s_destroyCachedSearchLineAdapter);
         if(context[0] && !devassert(tab->context))
             estrPrintCharString(&tab->context, context);
         tab->page = page;
@@ -2135,7 +2157,7 @@ void missionsearch_clearPages(MissionSearchTab *tab)
 {
     if(tab)
     {
-        eaClearEx(&tab->lines, s_destroyCachedSearchLine);
+        eaClearEx(&tab->lines, s_destroyCachedSearchLineAdapter);
         tab->list_scroll.offset = 0;
         tab->loaded = 0;
     }

@@ -593,6 +593,17 @@ void moralChoiceDecisionSendLeft(char *data)
     END_INPUT_PACKET
 }
 
+static void moralChoiceDecisionSendLeftAdapter(void * arg0)
+{
+    moralChoiceDecisionSendLeft((char *)arg0);
+}
+
+void moralChoiceDisplayChoice(char *data);
+static void moralChoiceDisplayChoiceAdapter(void * arg0)
+{
+    moralChoiceDisplayChoice((char *)arg0);
+}
+
 void moralChoiceDecisionLeft(char *data)
 {
     if (!s_moralChoice_requireConfirmation)
@@ -603,8 +614,7 @@ void moralChoiceDecisionLeft(char *data)
     {
         // Isn't DIALOG_ACCEPT_CANCEL because the CANCEL option gets run when you log out,
         // which would display the Moral Choice dialog on the login/character select screen.
-        dialogStd(DIALOG_TWO_RESPONSE,s_moralChoice_leftText,"AcceptString","CancelString",
-            moralChoiceDecisionSendLeft,moralChoiceDisplayChoice,0);        
+        dialogStd(DIALOG_TWO_RESPONSE,s_moralChoice_leftText,"AcceptString","CancelString", moralChoiceDecisionSendLeftAdapter, moralChoiceDisplayChoiceAdapter,0);
     }
 }
 
@@ -613,6 +623,11 @@ void moralChoiceDecisionSendRight(char *data)
     START_INPUT_PACKET(pak, CLIENTINP_MORAL_CHOICE_RESPONSE);
     pktSendBitsPack(pak, 1, 2);
     END_INPUT_PACKET
+}
+
+static void moralChoiceDecisionSendRightAdapter(void * arg0)
+{
+    moralChoiceDecisionSendRight((char *)arg0);
 }
 
 void moralChoiceDecisionRight(char *data)
@@ -625,21 +640,38 @@ void moralChoiceDecisionRight(char *data)
     {
         // Isn't DIALOG_ACCEPT_CANCEL because the CANCEL option gets run when you log out,
         // which would display the Moral Choice dialog on the login/character select screen.
-        dialogStd(DIALOG_TWO_RESPONSE,s_moralChoice_rightText,"AcceptString","CancelString",
-            moralChoiceDecisionSendRight,moralChoiceDisplayChoice,0);        
+        dialogStd(DIALOG_TWO_RESPONSE,s_moralChoice_rightText,"AcceptString","CancelString", moralChoiceDecisionSendRightAdapter, moralChoiceDisplayChoiceAdapter,0);
     }
+}
+
+static void moralChoiceDecisionLeftAdapter(void * arg0)
+{
+    moralChoiceDecisionLeft((char *)arg0);
+}
+
+static void moralChoiceDecisionRightAdapter(void * arg0)
+{
+    moralChoiceDecisionRight((char *)arg0);
+}
+
+static void moralChoiceDecisionLeftAdapter5(void* arg0)
+{
+    moralChoiceDecisionLeft((char *)arg0);
+}
+
+static void moralChoiceDecisionRightAdapter6(void* arg0)
+{
+    moralChoiceDecisionRight((char *)arg0);
 }
 
 void moralChoiceDisplayChoice(char *data)
 {
 #ifdef TEST_CLIENT
-    dialogTimed(DIALOG_TWO_RESPONSE,s_moralChoice_leftText,NULL,NULL,
-        moralChoiceDecisionLeft,moralChoiceDecisionRight,0,0);
+    dialogTimed(DIALOG_TWO_RESPONSE,s_moralChoice_leftText,NULL,NULL, moralChoiceDecisionLeftAdapter, moralChoiceDecisionRightAdapter,0,0);
 #else
     if (s_moralChoice_leftText && s_moralChoice_leftText[0])
     {
-        dialogMoralChoice(s_moralChoice_leftText, s_moralChoice_rightText,
-            moralChoiceDecisionLeft, moralChoiceDecisionRight, 
+        dialogMoralChoice(s_moralChoice_leftText, s_moralChoice_rightText, moralChoiceDecisionLeftAdapter5, moralChoiceDecisionRightAdapter6,
             s_moralChoice_leftWatermark, s_moralChoice_rightWatermark);
     }
 #endif
@@ -1304,6 +1336,16 @@ void receiveTeamList( Packet * pak, Entity *e )
 }
 
 // sgroup_sendList
+static void destroySupergroupStatsCallback(void* arg0)
+{
+    destroySupergroupStats((SupergroupStats *)arg0);
+}
+
+static void destroySupergroupMemberInfoAdapter(void* arg0)
+{
+    destroySupergroupMemberInfo((SupergroupMemberInfo*)arg0);
+}
+
 void receiveSuperStats(Packet *pak, Entity *e)
 {
     int i, count;
@@ -1334,7 +1376,7 @@ void receiveSuperStats(Packet *pak, Entity *e)
         if( e->sgStats )
         {
             // Free up the old EArray
-            eaDestroyEx( &e->sgStats, destroySupergroupStats );
+            eaDestroyEx( &e->sgStats, destroySupergroupStatsCallback );
         }
 
         srClearAll();
@@ -1374,7 +1416,7 @@ void receiveSuperStats(Packet *pak, Entity *e)
     if( e->sgStats )
     {
         // Free up the old EArray
-        eaDestroyEx( &e->sgStats, destroySupergroupStats );
+        eaDestroyEx( &e->sgStats, destroySupergroupStatsCallback );
     }
 
     if( count > 0 )
@@ -1434,7 +1476,7 @@ void receiveSuperStats(Packet *pak, Entity *e)
         sg->entryPermission = pktGetBitsAuto( pak );
 
         if(sg->memberranks)
-            eaClearEx(&sg->memberranks, destroySupergroupMemberInfo);
+            eaClearEx(&sg->memberranks, destroySupergroupMemberInfoAdapter);
 
         n = pktGetBitsPack(pak, 1);
         for (i = 0; i < n; i++)

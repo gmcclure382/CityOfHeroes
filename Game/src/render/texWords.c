@@ -57,7 +57,7 @@ U32 texWords_pixels=0; // Count of pixels rendered (more like "bytes")
 static CRITICAL_SECTION criticalSectionDoingTexWordRendering; // We use statics here
 static CRITICAL_SECTION criticalSectionDoingTexWordInfo;
 HANDLE background_renderer_handle = NULL;
-DWORD background_renderer_threadID = 0;
+unsigned background_renderer_threadID = 0;
 extern TexThreadPackage * texBindsReadyForFinalProcessing;
 extern CRITICAL_SECTION CriticalSectionTexLoadQueues;
 static volatile long numTexWordsInThread=0;
@@ -318,7 +318,7 @@ void texWordsFlush(void)
 // }
 
 /*TexWords Renderer thread: All I do is sleep, waiting to be given things by QueueUserAPC*/
-static DWORD WINAPI texWordsThread( LPVOID lpParam )
+static unsigned __stdcall texWordsThread( LPVOID lpParam )
 {
     EXCEPTION_HANDLER_BEGIN
         //if (fileIsUsingDevData()) {
@@ -328,6 +328,7 @@ static DWORD WINAPI texWordsThread( LPVOID lpParam )
             SleepEx(INFINITE, TRUE);
         return 0; 
     EXCEPTION_HANDLER_END
+    return 0;
 }
 
 void initBackgroundTexWordRenderer(void)
@@ -353,8 +354,10 @@ void initBackgroundTexWordRenderer(void)
 }
 
 
-static int texWordsNameCmp(const TexWord ** info1, const TexWord ** info2 )
+static int texWordsNameCmp(const void* info1Data, const void* info2Data)
 {
+    const TexWord ** info1 = (const TexWord **)info1Data;
+    const TexWord ** info2 = (const TexWord **)info2Data;
     return stricmp( getFileName((char*)(*info1)->name), getFileName((char*)(*info2)->name) );
 }
 
@@ -508,8 +511,9 @@ bool texWordVerify(TexWord *texWord, bool fix) {
     return ret;
 }
 
-bool texWordsPreprocessor(TokenizerParseInfo pti[], TexWordList *twl)
+bool texWordsPreprocessor(ParseTable* pti, void* structptr)
 {
+    TexWordList * twl = (TexWordList *)structptr;
     int numTexWords=eaSize(&twl->texWords);
     int i;
     for (i=0; i<numTexWords; i++) {
@@ -545,7 +549,7 @@ void texWordsLoadInfo()
 
         //Clean up TexWord names, and sort them
         num_structs = eaSize(&texWords_list.texWords);
-        qsort(texWords_list.texWords, num_structs, sizeof(void*), (int (*) (const void *, const void *)) texWordsNameCmp);
+        qsort(texWords_list.texWords, num_structs, sizeof(void*), texWordsNameCmp);
 
         // Add entries of the appropriate locale to the hashtable
         for (i=0; i<num_structs; i++) {
@@ -2596,6 +2600,11 @@ static VOID CALLBACK texWordDoThreadedWorkSub( TexWordThreadPackage *twPkg)
     PERFINFO_AUTO_STOP();
 }
 
+static VOID CALLBACK texWordDoThreadedWorkAPC(ULONG_PTR data)
+{
+    texWordDoThreadedWorkSub((TexWordThreadPackage*)data);
+}
+
 int texWordDoThreadedWork(TexThreadPackage *pkg, bool yield)
 {
     TexWord *texWord=pkg->bind->texWord;
@@ -2616,7 +2625,7 @@ int texWordDoThreadedWork(TexThreadPackage *pkg, bool yield)
     // Do software composition
     // queue this in another thread (or do it immediately in the case of a foreground load)
     if (yield) {
-        QueueUserAPC((PAPCFUNC)texWordDoThreadedWorkSub, background_renderer_handle, (ULONG_PTR)twPkg);
+        QueueUserAPC(texWordDoThreadedWorkAPC, background_renderer_handle, (ULONG_PTR)twPkg);
     } else {
         // Do it now!
         texWordDoThreadedWorkSub(twPkg);

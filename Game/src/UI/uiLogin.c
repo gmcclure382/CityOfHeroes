@@ -866,6 +866,12 @@ int playerSlot_FirstOpen()
 }
 
 
+static void playerSlotFree(PlayerSlotEntry *pSlot);
+static void playerSlotFreeCallback(void* arg0)
+{
+    playerSlotFree((PlayerSlotEntry *)arg0);
+}
+
 static void playerSlotsLoad()
 {
     FILE *file;
@@ -891,7 +897,7 @@ static void playerSlotsLoad()
         if(!file)
             return;
     }
-    eaDestroyEx(&ppPlayerSlots, playerSlotFree);
+    eaDestroyEx(&ppPlayerSlots, playerSlotFreeCallback);
 
     while(fgets(buf,sizeof(buf),file))
     {
@@ -1220,6 +1226,11 @@ static void unlockCharacter(void *unused)
     dbUnlockCharacter(db_info.players[gPlayerNumber].name);
 }
 
+static void slotRedeemAndUnlockCallback(void* data)
+{
+    slotRedeemAndUnlockSubmit((char*)data);
+}
+
 static void verifyUnlock(char *message, void(*cb)(void*), void *data)
 {
     dialogStdCB(DIALOG_YES_NO, message, NULL, NULL, cb, NULL, 0, data);
@@ -1296,12 +1307,12 @@ static void startCharacterUnlocking(char *strPlayerClass, const ClientCheckInfo 
                     if (!skuIdIsNull(pClientCheck->skuAccessPraetorian) || !skuIdIsNull(pClientCheck->skuAccessArchetype) || pClientCheck->strNoAccessPrimaryPowerset || pClientCheck->strNoAccessSecondaryPowerset)
                     {
                         estrConcatCharString(&str, textStd("CharLockMessageFooterHaveGlobalSlotNeedOthers"));
-                        verifyUnlock(str, slotRedeemAndUnlockSubmit, db_info.players[gPlayerNumber].name);
+                        verifyUnlock(str, slotRedeemAndUnlockCallback, db_info.players[gPlayerNumber].name);
                     }
                     else
                     {
                         estrConcatCharString(&str, textStd("CharLockMessageFooterHaveGlobalSlot"));
-                        verifyUnlock(str, slotRedeemAndUnlockSubmit, db_info.players[gPlayerNumber].name);
+                        verifyUnlock(str, slotRedeemAndUnlockCallback, db_info.players[gPlayerNumber].name);
                     }
                 }
                 else
@@ -4205,6 +4216,16 @@ static chooseUltraModeHigh(void*data)
 
 #define RETRIEVING_CHARACTER_LIST_SCREEN_DELAY_MS 1000
 
+static void chooseUltraModeLowAdapter(void * arg0)
+{
+    chooseUltraModeLow((void*)arg0);
+}
+
+static void chooseUltraModeHighAdapter(void * arg0)
+{
+    chooseUltraModeHigh((void*)arg0);
+}
+
 void loginMenu()
 {
     static int initCharacterSelect = 0;
@@ -4326,7 +4347,7 @@ void loginMenu()
 
             if (rdr_caps.chip & DX10_CLASS && !game_state.showLoginDialog )
             {
-                dialog( DIALOG_TWO_RESPONSE_CANCEL, -1, -1, 400, 300, "UltraModeCapableText", "ChooseUltraModeLow", chooseUltraModeLow, "ChooseUltraModeHigh", chooseUltraModeHigh, 0, 0, 0, 0, 0, 0, 0);
+                dialog( DIALOG_TWO_RESPONSE_CANCEL, -1, -1, 400, 300, "UltraModeCapableText", "ChooseUltraModeLow", chooseUltraModeLowAdapter, "ChooseUltraModeHigh", chooseUltraModeHighAdapter, 0, 0, 0, 0, 0, 0, 0);
                 game_state.showLoginDialog = 1;
                 saveAutoResumeInfoToRegistry();
             }

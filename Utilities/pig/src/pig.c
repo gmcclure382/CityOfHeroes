@@ -989,8 +989,9 @@ static PigEntryInfo **eaFiles=NULL;
 static HWND g_hDlg;
 static HWND hStatusBar;
 
-void pigViewView(ListView *lv, PigEntryInfo *entry, void *data)
+void pigViewView(ListView* lv, void* entryData, void* data)
 {
+    PigEntryInfo * entry = (PigEntryInfo *)entryData;
     void *filedata;
     U32 count;
     filedata = PigFileExtract(pig_file, entry->filename, &count);
@@ -1008,8 +1009,9 @@ void pigViewView(ListView *lv, PigEntryInfo *entry, void *data)
     }
 }
 
-void pigViewExtract(ListView *lv, PigEntryInfo *entry, void *data)
+void pigViewExtract(ListView* lv, void* entryData, void* data)
 {
+    PigEntryInfo * entry = (PigEntryInfo *)entryData;
     void *filedata;
     U32 count;
     filedata = PigFileExtract(pig_file, entry->filename, &count);
@@ -1044,8 +1046,9 @@ typedef struct
     int disk_size;
 } TotalSizeStruct;
 
-void pigViewTotalSize(ListView *lv, PigEntryInfo *entry, void *data)
+void pigViewTotalSize(ListView* lv, void* entryData, void* data)
 {
+    PigEntryInfo * entry = (PigEntryInfo *)entryData;
     int index = PigFileFindIndexQuick(pig_file, entry->filename);
     if (index != -1 && data)
     {
@@ -1072,7 +1075,7 @@ void setStatusBar(int elem, const char *fmt, ...)
     SendMessageA(hStatusBar, SB_SETTEXTA, elem, (LPARAM)str);
 }
 
-LRESULT CALLBACK DlgPigViewProc (HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK DlgPigViewProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     int i;
     RECT rect;
@@ -1201,7 +1204,7 @@ static int win32listPig(const char *out)
         }
 
         lvFiles = listViewCreate();
-        hiret = DialogBox (winGetHInstance(), (LPCTSTR) (IDD_PIG), NULL, (DLGPROC)DlgPigViewProc);
+        hiret = DialogBox (winGetHInstance(), (LPCTSTR) (IDD_PIG), NULL, DlgPigViewProc);
         //listViewDestroy(lvFiles);
 
     }

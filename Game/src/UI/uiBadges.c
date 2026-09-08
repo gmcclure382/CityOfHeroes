@@ -277,6 +277,11 @@ static void badgeMonitor_focusBadge(void* data)
     // TODO implement (how?)
 }
 
+static const char * badgeMonitorGetStopDisplayTextAdapter(void* arg0)
+{
+    return badgeMonitorGetStopDisplayText((void *)arg0);
+}
+
 static void initBadgeMonitorContextMenu()
 {
     if (badgeMonitorContextMenu)
@@ -287,7 +292,7 @@ static void initBadgeMonitorContextMenu()
     badgeMonitorContextMenu = contextMenu_Create(0);
     contextMenu_addTitle(badgeMonitorContextMenu, "BadgeMonitorString");
     contextMenu_addCode(badgeMonitorContextMenu, alwaysAvailable, 0, badgeMonitor_focusBadge, 0, "FocusBadgeMonitorString", 0);
-    contextMenu_addVariableTextCode(badgeMonitorContextMenu, alwaysAvailable, 0, badgeMonitor_stopDisplay, 0, badgeMonitorGetStopDisplayText, 0, NULL);
+    contextMenu_addVariableTextCode(badgeMonitorContextMenu, alwaysAvailable, 0, badgeMonitor_stopDisplay, 0, badgeMonitorGetStopDisplayTextAdapter, 0, NULL);
     contextMenu_addCode(badgeMonitorContextMenu, alwaysAvailable, 0, badgeMonitor_MoveUp, 0, "MoveUpString", 0);
     contextMenu_addCode(badgeMonitorContextMenu, alwaysAvailable, 0, badgeMonitor_MoveDown, 0, "MoveDownString", 0);
     contextMenu_addDivider(badgeMonitorContextMenu);
@@ -624,8 +629,10 @@ static float badge_display( float x, float y, float z, float sc, float wd,
     return ht + BADGE_SPACE*sc;
 }
 
-static int badgeSortByCompletion( const BadgeDef **b1, const BadgeDef **b2 )
+static int badgeSortByCompletion(const void* b1Data, const void* b2Data)
 {
+    const BadgeDef ** b1 = (const BadgeDef **)b1Data;
+    const BadgeDef ** b2 = (const BadgeDef **)b2Data;
     U32 * badgeFields = playerPtr()->pl->aiBadges;
 
 

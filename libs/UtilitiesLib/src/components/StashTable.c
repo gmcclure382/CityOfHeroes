@@ -822,7 +822,17 @@ void stashForEachElement(StashTableImp* pTable, StashElementProcessor proc)
 
 void stashForEachElementConst(cStashTable pTable, cStashElementProcessor proc)
 {
-    stashForEachElement(cpp_const_cast(StashTable)(pTable), proc);
+    StashTableIterator iter;
+    cStashElement elem;
+
+    if (!pTable)
+        return;
+    stashGetIterator(pTable, &iter);
+    while (stashGetNextElementConst(&iter, &elem))
+    {
+        if (!proc(elem))
+            return;
+    }
 }
 
 void stashForEachElementEx(StashTableImp* pTable, StashElementProcessorEx proc, void* userdata)

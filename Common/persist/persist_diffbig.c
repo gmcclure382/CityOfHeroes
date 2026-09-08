@@ -163,7 +163,7 @@ DirtyType adder_diffbig(PersistInfo *info, void *structptr)
     return DIRTY_ROW;
 }
 
-int remover_diffbig(PersistInfo *info, void *structptr)
+DirtyType remover_diffbig(PersistInfo *info, void *structptr)
 {
     // record the removal for diffing
     switch(info->keytype)
@@ -250,7 +250,7 @@ int merger_diffbig(PersistInfo *info, int write)
     return 1;
 }
 
-static DWORD WINAPI s_flusherthread(LPVOID lpParam)
+static unsigned __stdcall s_flusherthread(LPVOID lpParam)
 {
     EXCEPTION_HANDLER_BEGIN
 

@@ -111,6 +111,11 @@ static void clearSupergroupLine(SupergroupLine *sgline)
     MP_FREE(SupergroupLine, sgline);
 }
 
+static void clearSupergroupLineAdapter(void* arg0)
+{
+    clearSupergroupLine((SupergroupLine *)arg0);
+}
+
 void receiveSupergroupList(Packet *pak)
 {
     int count, i;
@@ -119,7 +124,7 @@ void receiveSupergroupList(Packet *pak)
     count = pktGetBitsPack(pak, 1);
     if (!gSupergroupLines)
         eaCreate(&gSupergroupLines);
-    eaClearEx( &gSupergroupLines, clearSupergroupLine);
+    eaClearEx( &gSupergroupLines, clearSupergroupLineAdapter);
 
     for (i = 0; i < count; i++)
     {
@@ -173,8 +178,9 @@ static int sgDescCompare(const SupergroupLine** sg1, const SupergroupLine** sg2)
     return stricmp( (*sg1)->description, (*sg1)->description );        
 }
 
-static UIBox sgListViewDisplayItem(UIListView* list, PointFloatXYZ rowOrigin, void* userSettings, SupergroupLine* sg, int itemIndex)
+static UIBox sgListViewDisplayItem(UIListView* list, PointFloatXYZ rowOrigin, void* userSettings, void* sgData, int itemIndex)
 {
+    SupergroupLine* sg = (SupergroupLine*)sgData;
     UIBox box;
     PointFloatXYZ pen = rowOrigin;
     UIColumnHeaderIterator columnIterator;

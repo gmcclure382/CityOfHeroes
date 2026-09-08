@@ -885,8 +885,10 @@ void editSelContents()
     }
 }
 
-int cmpDepth(SelInfo *a,SelInfo *b)
+int cmpDepth(const void* aData, const void* bData)
 {
+    SelInfo * a = (SelInfo *)aData;
+    SelInfo * b = (SelInfo *)bData;
     int i;
     for (i=0;i<a->depth && i<b->depth;i++)
         if (a->idxs[i]!=b->idxs[i])
@@ -926,7 +928,7 @@ int editSelSort()
                 return 0;    //trying to 
         }
     }
-    qsort(sel_list,sel_count,sizeof(sel_list[0]),(int (*) (const void *, const void *)) cmpDepth);
+    qsort(sel_list,sel_count,sizeof(sel_list[0]),cmpDepth);
     return 1;
 }
 
@@ -1580,11 +1582,11 @@ typedef struct {
 
 AddDoorPropertyMenuInfo addDoorPropInfo;
 
-void addDoorPropertyCopyValue(void* notUsed) {
+void addDoorPropertyCopyValue(int notUsed) {
     sprintf(addPropInfo.value,"%s",addDoorPropInfo.spawnLocations[addPropInfo.whichValue]);
 }
 
-void addPropertyClear(void* notUsed) {
+void addPropertyClear(int notUsed) {
     addPropInfo.whichValue=0;
     addPropInfo.whichName=0;
     addPropInfo.value[0]=0;
@@ -1639,12 +1641,12 @@ typedef struct {
 
 AddDestroyablePropertiesMenuInfo addDestroyablePropInfo;
 
-void addDestroyablePropertiesConstrainMinHealth(void* notUsed) {
+void addDestroyablePropertiesConstrainMinHealth(int notUsed) {
     if (addDestroyablePropInfo.min>addDestroyablePropInfo.max)
         addDestroyablePropInfo.min=addDestroyablePropInfo.max;
 }
 
-void addDestroyablePropertiesConstrainMaxHealth(void* notUsed) {
+void addDestroyablePropertiesConstrainMaxHealth(int notUsed) {
     if (addDestroyablePropInfo.max<addDestroyablePropInfo.min)
         addDestroyablePropInfo.max=addDestroyablePropInfo.min;
 }
@@ -1727,29 +1729,29 @@ static void clean_copy(char *dest, char *src) {
     *dest = 0;
 }
 
-static void clean_value(void *str) {
+static void clean_value(int str) {
     clean_copy(addPropInfo.value,addPropInfo.value);
     clean_copy(addPropInfo.name,addPropInfo.name);
 }
 
 
-void addPropertyValueChange(void* notUsed) {
+void addPropertyValueChange(int notUsed) {
     sprintf(addPropInfo.value,"%s",g_propertyDefList.list[addPropInfo.whichName]->texts[addPropInfo.whichValue]);
 }
 
-void addPropertySliderValueChanged(void* notUsed) {
+void addPropertySliderValueChanged(int notUsed) {
     addPropInfo.valueFloat=atof(addPropInfo.value);
 }
 
-void addPropertySliderSliderChanged(void* widgetIndex) {
-    int index = (int)widgetIndex;
+void addPropertySliderSliderChanged(int widgetIndex) {
+    int index = widgetIndex;
     if (g_propertyDefList.list[index]->type==PROPTYPE_SLIDER)
         sprintf(addPropInfo.value,"%f",addPropInfo.valueFloat);
     else
         sprintf(addPropInfo.value,"%d",(int)(addPropInfo.valueFloat+.5));
 }
 
-void addPropertyPropertiesChanged(void* notUsed) {
+void addPropertyPropertiesChanged(int notUsed) {
     addPropInfo.value[0]=0;
 }
 
@@ -1823,13 +1825,13 @@ void addPropertyCreateMenu(MenuEntry * me,ClickInfo * ci) {
                             int sliderID;
                             editorUIAddTextEntry(addPropInfo.ID,addPropInfo.value,256,addPropertySliderValueChanged,"Value");
                             sliderID = editorUIAddSlider(addPropInfo.ID,&addPropInfo.valueFloat,g_propertyDefList.list[i]->min,g_propertyDefList.list[i]->max,0,addPropertySliderSliderChanged,"");
-                            editorUISetWidgetCallbackParam(sliderID, (void*)i);
+                            editorUISetWidgetCallbackParam(sliderID, i);
                         } else
                         if (g_propertyDefList.list[i]->type==PROPTYPE_INTEGERSLIDER) {
                             int sliderID;
                             editorUIAddTextEntry(addPropInfo.ID,addPropInfo.value,256,addPropertySliderValueChanged,"Value");
                             sliderID = editorUIAddSlider(addPropInfo.ID,&addPropInfo.valueFloat,g_propertyDefList.list[i]->min,g_propertyDefList.list[i]->max,1,addPropertySliderSliderChanged,"");
-                            editorUISetWidgetCallbackParam(sliderID, (void*)i);
+                            editorUISetWidgetCallbackParam(sliderID, i);
                         } else
                         if (g_propertyDefList.list[i]->type==PROPTYPE_RADIOBUTTONS)
                             editorUIAddRadioButtonsFromEArray(addPropInfo.ID,&addPropInfo.whichValue,addPropertyValueChange,g_propertyDefList.list[i]->texts);
@@ -1888,7 +1890,7 @@ void addProperty2(MenuEntry * me,ClickInfo * ci){
             sprintf(buffer2, "0");
             ptd.property = buffer;
             ptd.value = buffer2;
-            another = DialogBoxParam(glob_hinstance, MAKEINTRESOURCE(IDD_NEWPROP), hwnd, (DLGPROC)editPropertyDialog, (LPARAM)&ptd);
+            another = DialogBoxParam(glob_hinstance, MAKEINTRESOURCE(IDD_NEWPROP), hwnd, editPropertyDialog, (LPARAM)&ptd);
             inpClear();
             // check for cancel
             if (another == 2) {
@@ -2402,7 +2404,7 @@ static float getEditStatusPercenDone(void)
     return status_percent;
 }
 
-static void updateStatusBar(void* notUsed)
+static void updateStatusBar(int notUsed)
 {
     status_percent += 0.01f * TIMESTEP;
     if (status_percent > 1.f)

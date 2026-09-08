@@ -585,8 +585,10 @@ static int hour_part(int hour)
     while (hour < 0) hour += 24;
     return hour % 24;
 }
-static int compare_hours(int* left, int* right)
+static int compare_hours(const void* leftData, const void* rightData)
 {
+    int* left = (int*)leftData;
+    int* right = (int*)rightData;
     return hour_part(*left) - hour_part(*right);
 }
 
@@ -666,6 +668,11 @@ static void checkNewWindow(ScheduledBaseRaid* raid, U32 raidid)
     raidInfo->window_hour = oldHours;
 }
 
+static void checkNewWindowAdapter(void* arg0, U32 arg1)
+{
+    checkNewWindow((ScheduledBaseRaid*)arg0, (U32)arg1);
+}
+
 int sgRaidTimeWindow(void)
 {
     float x, y, z, wd, ht, sc;
@@ -700,7 +707,7 @@ int sgRaidTimeWindow(void)
         last_tz_adjust = tz_adjust;
         for (i = 0; i < RAID_HOUR_COUNT; i++)
             raid_hours[i] = hour_part(RAID_HOUR_START + i + tz_adjust); 
-        qsort(raid_hours, RAID_HOUR_COUNT, sizeof(raid_hours[0]), (int(*)(const void*,const void*))compare_hours);
+        qsort(raid_hours, RAID_HOUR_COUNT, sizeof(raid_hours[0]), compare_hours);
 
         eaDestroyConst( &hourCB.strings );
     }
@@ -757,7 +764,7 @@ int sgRaidTimeWindow(void)
 
         // Check to see if they currently have a scheduled raid in a slot they are changing
         windowConflict = SGRAID_WINDOWCHANGE_OK;
-        cstoreForEach(g_ScheduledBaseRaidStore, checkNewWindow);
+        cstoreForEach(g_ScheduledBaseRaidStore, checkNewWindowAdapter);
 
         if (windowConflict == SGRAID_WINDOWCHANGE_OK)
             sgRaidWindowChange(0);

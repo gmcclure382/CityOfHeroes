@@ -109,7 +109,7 @@ void editCmdFogColor()
 
 extern char *EnterTextStrings[];
 
-LRESULT CALLBACK editPropertyDialog(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
+INT_PTR CALLBACK editPropertyDialog(HWND hDlg, UINT msg, WPARAM wp, LPARAM lp)
 {
     static PropertyDialogParams* ptd;
     //    RECT rc;
@@ -203,7 +203,7 @@ void editAddProperty(){
             sprintf(buffer2, "0");
             ptd.property = buffer;
             ptd.value = buffer2;
-            another = DialogBoxParamA(glob_hinstance, MAKEINTRESOURCEA(IDD_NEWPROP), hwnd, (DLGPROC)editPropertyDialog, (LPARAM)&ptd);
+            another = DialogBoxParamA(glob_hinstance, MAKEINTRESOURCEA(IDD_NEWPROP), hwnd, editPropertyDialog, (LPARAM)&ptd);
             inpClear();
             // check for cancel
             if (another == 2) {
@@ -968,7 +968,7 @@ void editCmdFindNextProperty( int findType )
 
         ptd.property = buffer;
         ptd.value = buffer2;
-        result = DialogBoxParam(glob_hinstance, MAKEINTRESOURCE(IDD_NEWPROP), hwnd, (DLGPROC)editPropertyDialog, (LPARAM)&ptd);
+        result = DialogBoxParam(glob_hinstance, MAKEINTRESOURCE(IDD_NEWPROP), hwnd, editPropertyDialog, (LPARAM)&ptd);
         //inpClear();
         // check for cancel
         //if (another == 2)
@@ -1043,7 +1043,7 @@ void editCmdBurningBuildingModifyHealth() {
     estrPrintf(&propertyEnt->value_str, "%f%c", currentHealth,sign);
 }
 
-void boxScaleChanged(void* notUsed) {
+void boxScaleChanged(int notUsed) {
     boxScaleInfo.def->box_scale[0]=atof(boxScaleInfo.x);
     boxScaleInfo.def->box_scale[1]=atof(boxScaleInfo.y);
     boxScaleInfo.def->box_scale[2]=atof(boxScaleInfo.z);

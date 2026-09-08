@@ -1909,7 +1909,7 @@ int x_fclose(FileWrapper *fw)
 
     //ZeroArray(fw->name);
     if (fw->nameptr_needs_freeing) {
-        SAFE_FREE((char*)fw->nameptr);
+		SAFE_FREE(fw->nameptr);
     }
     fw->nameptr = NULL;
     fw->nameptr_needs_freeing = 0;
@@ -1923,7 +1923,7 @@ int x_fclose(FileWrapper *fw)
             ret = gzclose(fptr);
         xcase IO_PIG:
             PERFINFO_AUTO_START("x_fclose:pig_fclose", 1);
-            ret = pig_fclose(fptr);
+            ret = pig_fclose((PigFileHandle *)fptr);
         xcase IO_STRING:
             PERFINFO_AUTO_START("x_fclose:addBinaryDataToStuffBuff", 1);
             addBinaryDataToStuffBuff((StuffBuff*)fptr, (char*)&zero, 1);
@@ -1943,14 +1943,14 @@ int x_fclose(FileWrapper *fw)
 int x_fgetc(FileWrapper *fw)
 {
     int ret=-1;
-    int count;
+    DWORD count;
     switch(fw->iomode) {
         xcase IO_GZ:
             PERFINFO_AUTO_START("x_fgetc:gzgetc", 1);
             ret = gzgetc((gzFile)fw->fptr);
         xcase IO_PIG:
             PERFINFO_AUTO_START("x_fgetc:pig_fgetc", 1);
-            ret = pig_fgetc(fw->fptr);
+            ret = pig_fgetc((PigFileHandle *)fw->fptr);
         xcase IO_STRING:
             PERFINFO_AUTO_START("x_fgetc:assert", 1);
             assert(!"StuffBuffFiles are write-only");
@@ -1961,8 +1961,7 @@ int x_fgetc(FileWrapper *fw)
         xcase IO_WINIO:
             PERFINFO_AUTO_START("x_fgetc:ReadFile", 1);
             ret = 0;
-            ReadFile(fw->fptr, &ret, 1, &count, NULL);
-            if (count!=1)
+            if (!ReadFile(fw->fptr, &ret, 1, &count, NULL) || count != 1)
                 ret = EOF;
     }
     PERFINFO_AUTO_STOP();
@@ -1972,7 +1971,7 @@ int x_fgetc(FileWrapper *fw)
 int x_fputc(int c,FileWrapper *fw)
 {
     int ret=-1;
-    int count;
+    DWORD count;
     switch(fw->iomode) {
         xcase IO_GZ:
             PERFINFO_AUTO_START("x_fputc:gzputc", 1);
@@ -1990,10 +1989,10 @@ int x_fputc(int c,FileWrapper *fw)
         xcase IO_WINIO:
             PERFINFO_AUTO_START("x_fputc:WriteFile", 1);
             ret = WriteFile(fw->fptr, &c, 1, &count, NULL);
-            if (ret==0)
+            if (ret == 0 || count != 1)
                 ret = EOF;
             else
-                ret = c;
+                ret = (unsigned char)c;
     }
     PERFINFO_AUTO_STOP();
     return ret;
@@ -2002,14 +2001,13 @@ int x_fputc(int c,FileWrapper *fw)
 S64 x_fseek(FileWrapper *fw, S64 dist,int whence)
 {
     S64 ret=-1;
-    DWORD dwPtr=0;
     switch(fw->iomode) {
         xcase IO_GZ:
             PERFINFO_AUTO_START("x_fseek:gzseek", 1);
             ret = gzseek(fw->fptr,(long)dist,whence);
         xcase IO_PIG:
             PERFINFO_AUTO_START("x_fseek:pig_fseek", 1);
-            ret = pig_fseek(fw->fptr,(long)dist,whence);
+            ret = pig_fseek((PigFileHandle *)fw->fptr,(long)dist,whence);
         xcase IO_STRING:
             PERFINFO_AUTO_START("x_fseek:assert", 1);
             assert(!"StuffBuffFiles are write-only");
@@ -2033,26 +2031,26 @@ S64 x_fseek(FileWrapper *fw, S64 dist,int whence)
             }
             ret = fsetpos(fw->fptr,&dist);
         xcase IO_WINIO:
-            PERFINFO_AUTO_START("x_fseek:SetFilePointer", 1);
+            PERFINFO_AUTO_START("x_fseek:SetFilePointerEx", 1);
             {
-                U32 lowbits = (U32)(dist&0xFFFFFFFFLL);
-                S32 highbits = (S32)(dist >> 32LL);
+                LARGE_INTEGER distance;
+                DWORD method;
+                distance.QuadPart = dist;
                 switch(whence)
                 {
                     xcase SEEK_SET:
-                        dwPtr = SetFilePointer(fw->fptr,lowbits,&highbits,FILE_BEGIN);
+                        method = FILE_BEGIN;
                     xcase SEEK_END:
-                        dwPtr = SetFilePointer(fw->fptr,lowbits,&highbits,FILE_END);
+                        method = FILE_END;
                     xcase SEEK_CUR:
-                        dwPtr = SetFilePointer(fw->fptr,lowbits,&highbits,FILE_CURRENT);
+                        method = FILE_CURRENT;
                     xdefault:
                         assert(0);
+                        PERFINFO_AUTO_STOP();
+                        return -1;
                 }
+                ret = SetFilePointerEx(fw->fptr, distance, NULL, method) ? 0 : -1;
             }
-            if (dwPtr == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR )
-                ret = -1;
-            else
-                ret = 0;
     }
     PERFINFO_AUTO_STOP();
     return ret;
@@ -2068,7 +2066,7 @@ int x_getc(FileWrapper *fw)
             ret = gzgetc((gzFile)fw->fptr);
         xcase IO_PIG:
             PERFINFO_AUTO_START("x_getc:pig_getc", 1);
-            ret = pig_getc(fw->fptr);
+            ret = pig_getc((PigFileHandle *)fw->fptr);
         xcase IO_STRING:
             PERFINFO_AUTO_START("x_getc:stuffbuff_getc", 1);
             ret = stuffbuff_getc(fw->fptr);
@@ -2078,32 +2076,11 @@ int x_getc(FileWrapper *fw)
         xcase IO_WINIO:
             PERFINFO_AUTO_START("x_getc:ReadFile", 1);
             ret = 0;
-            ReadFile(fw->fptr, &ret, 1, &count, NULL);
-            if (count!=1)
+            if (!ReadFile(fw->fptr, &ret, 1, &count, NULL) || count != 1)
                 ret = EOF;
     }
     PERFINFO_AUTO_STOP();
     return ret;
-}
-
-// Functionally identical to SetFilePointerEx, but runs on Win98
-BOOL SetFilePointerExWin98(HANDLE hFile, LARGE_INTEGER liDistanceToMove, PLARGE_INTEGER lpNewFilePointer, DWORD dwMoveMethod)
-{
-    LARGE_INTEGER li;
-
-    li.QuadPart = liDistanceToMove.QuadPart;
-
-    li.LowPart = SetFilePointer (hFile, li.LowPart, &li.HighPart, dwMoveMethod);
-
-    if (li.LowPart == INVALID_SET_FILE_POINTER && GetLastError() != NO_ERROR)
-    {
-        // Failure
-        li.QuadPart = -1;
-        return FALSE;
-    }
-
-    lpNewFilePointer->QuadPart = li.QuadPart;
-    return TRUE;
 }
 
 S64 x_ftell(FileWrapper *fw)
@@ -2115,7 +2092,7 @@ S64 x_ftell(FileWrapper *fw)
             ret = gztell(fw->fptr);
         xcase IO_PIG:
             PERFINFO_AUTO_START("x_ftell:pig_ftell", 1);
-            ret = pig_ftell(fw->fptr);
+            ret = pig_ftell((PigFileHandle *)fw->fptr);
         xcase IO_STRING:
             PERFINFO_AUTO_START("x_ftell:stuffBuff", 1);
             ret = ((StuffBuff*)fw->fptr)->idx;
@@ -2127,7 +2104,7 @@ S64 x_ftell(FileWrapper *fw)
             {
                 LARGE_INTEGER zero = {0};
                 LARGE_INTEGER newpos;
-                if (SetFilePointerExWin98(fw->fptr,zero,&newpos,FILE_CURRENT))
+                if (SetFilePointerEx(fw->fptr,zero,&newpos,FILE_CURRENT))
                     ret = newpos.QuadPart;
                 else
                     ret = -1;
@@ -2150,7 +2127,7 @@ intptr_t x_fread(void *buf,size_t size1,size_t size2,FileWrapper *fw)
             ret = gzread(fw->fptr, buf, (unsigned int)(size1*size2)) / size1;
         xcase IO_PIG:
             PERFINFO_AUTO_START("x_fread:pig_fread", 1);
-            ret = pig_fread(fw->fptr, buf, (long)(size1*size2)) / size1;
+            ret = pig_fread((PigFileHandle *)fw->fptr, buf, (long)(size1*size2)) / size1;
         xcase IO_STRING:
             PERFINFO_AUTO_START("x_fread:stuffbuff_fread", 1);
             ret = stuffbuff_fread(fw->fptr, buf, (int)(size1*size2)) / size1;
@@ -2210,7 +2187,7 @@ char *x_fgets(char *buf,int len,FileWrapper *fw)
             ret = gzgets(fw->fptr,buf,len);
         xcase IO_PIG:
             PERFINFO_AUTO_START("x_fgets:pig_fgets", 1);
-            ret = pig_fgets(fw->fptr,buf,len);
+            ret = pig_fgets((PigFileHandle *)fw->fptr,buf,len);
         xcase IO_STRING:
             PERFINFO_AUTO_START("x_fgets:assert", 1);
             assert(!"StuffBuffFiles are write-only");
@@ -2504,7 +2481,7 @@ FileWrapper *fileWrap(void *real_file_pointer)
 int fileGetSize(FileWrapper* fw){
     switch (fw->iomode) {
     xcase IO_PIG:
-        return pig_filelength(fw->fptr);
+        return pig_filelength((PigFileHandle *)fw->fptr);
     xcase IO_WINIO:
         return GetFileSize(fw->fptr, NULL);
     xcase IO_CRT:
@@ -2989,13 +2966,13 @@ __time32_t fileLastChanged(const char *refname)
 
 void *fileLockRealPointer(FileWrapper *fw) { // This implements support for Pig files, and must be followed by an unlock when done
     if (fw->iomode==IO_PIG)
-        return pig_lockRealPointer(fw->fptr);
+        return pig_lockRealPointer((PigFileHandle *)fw->fptr);
     return fileRealPointer(fw);
 }
 
 void fileUnlockRealPointer(FileWrapper *fw) {
     if (fw->iomode==IO_PIG)
-        pig_unlockRealPointer(fw->fptr);
+        pig_unlockRealPointer((PigFileHandle *)fw->fptr);
 }
 
 #ifndef FINAL
@@ -3078,7 +3055,7 @@ void fileFreeOldZippedBuffers(void)
 void fileFreeZippedBuffer(FileWrapper *fw)
 {
     if (fw->iomode == IO_PIG) {
-        pig_freeBuffer(fw->fptr);
+        pig_freeBuffer((PigFileHandle *)fw->fptr);
     }
 }
 

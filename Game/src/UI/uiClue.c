@@ -303,6 +303,11 @@ SouvenirClue* getClueByID( int uid )
 }
 
 
+static void scDestroyAdapter(void* arg0)
+{
+    scDestroy((SouvenirClue*)arg0);
+}
+
 void souvenirCluePrepareUpdate()
 {
     int i;
@@ -318,7 +323,7 @@ void souvenirCluePrepareUpdate()
         }
     }
 
-    eaClearEx(&pData->souvenirClues, scDestroy);
+    eaClearEx(&pData->souvenirClues, scDestroyAdapter);
 
     collapseAllSouvenirClues(pData);
 }
@@ -546,6 +551,11 @@ void clueTab()
 
 
 
+static void souvenirClueDeleteAdapter(void* arg0)
+{
+    souvenirClueDelete((SouvenirClue *)arg0);
+}
+
 void displaySouvenirClue( SouvenirData *pData, int idx, int xorig, float * y, int z, int wdorig, float sc, int deletable )
 {
     SouvenirClue* clue = pData->souvenirClues[idx];
@@ -651,7 +661,7 @@ void displaySouvenirClue( SouvenirData *pData, int idx, int xorig, float * y, in
     drawFlatFrame(PIX2, R10, xorig, *y-PIX3*sc, z-1, wdorig, ht, sc, foreColor, backColor);
 
     if( deletable && drawCloseButton( xorig + wdorig - 12*sc,  *y + 10*sc, z, sc, backColor)  )  
-        dialogStdCB(DIALOG_ACCEPT_CANCEL, "MMSouvenirReallyDelete", 0, 0, souvenirClueDelete, 0, 0, clue );
+        dialogStdCB(DIALOG_ACCEPT_CANCEL, "MMSouvenirReallyDelete", 0, 0, souvenirClueDeleteAdapter, 0, 0, clue );
 
     *y += ht;
     *y += CLUE_SPACE;

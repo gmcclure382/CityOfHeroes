@@ -115,6 +115,31 @@ static void combatMonitorcm_MoveUp( AttribDescription * pDesc )
     sendCombatMonitorUpdate();
 }
 
+static void combatMonitorcm_stopDisplayAdapter(void* arg0)
+{
+    combatMonitorcm_stopDisplay((AttribDescription *)arg0);
+}
+
+static const char * combatMonitorcm_stopDisplayTextAdapter(void* arg0)
+{
+    return combatMonitorcm_stopDisplayText((AttribDescription *)arg0);
+}
+
+static void combatMonitorcm_MoveUpAdapter(void* arg0)
+{
+    combatMonitorcm_MoveUp((AttribDescription *)arg0);
+}
+
+static void combatMonitorcm_MoveDownAdapter(void* arg0)
+{
+    combatMonitorcm_MoveDown((AttribDescription *)arg0);
+}
+
+static void combatMonitorcm_stopDisplayAllAdapter(void* arg0)
+{
+    combatMonitorcm_stopDisplayAll((AttribDescription *)arg0);
+}
+
 static void initCombatMonitorCM()
 {
     if(s_CombatMonitorCM)
@@ -123,16 +148,18 @@ static void initCombatMonitorCM()
     s_CombatMonitorCM = contextMenu_Create(0);
     contextMenu_addTitle( s_CombatMonitorCM, "CombatMonitorString" );
     contextMenu_addCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_openCombatNumbers, 0, "OpenCombatNumbersString", 0 );
-    contextMenu_addVariableTextCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_stopDisplay, 0, combatMonitorcm_stopDisplayText, 0, 0 );
-    contextMenu_addCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_MoveUp, 0, "MoveUpString", 0 );
-    contextMenu_addCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_MoveDown, 0, "MoveDownString", 0 );
+    contextMenu_addVariableTextCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_stopDisplayAdapter, 0, combatMonitorcm_stopDisplayTextAdapter, 0, 0 );
+    contextMenu_addCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_MoveUpAdapter, 0, "MoveUpString", 0 );
+    contextMenu_addCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_MoveDownAdapter, 0, "MoveDownString", 0 );
     contextMenu_addDivider( s_CombatMonitorCM );
-    contextMenu_addCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_stopDisplayAll, 0, "StopDisplayAllString", 0 );
+    contextMenu_addCode( s_CombatMonitorCM, alwaysAvailable, 0, combatMonitorcm_stopDisplayAllAdapter, 0, "StopDisplayAllString", 0 );
 }
 
 
-static int compareCombatStats( const CombatMonitorStat *s1, const CombatMonitorStat *s2 )
+static int compareCombatStats(const void* s1Data, const void* s2Data)
 {
+    const CombatMonitorStat * s1 = (const CombatMonitorStat *)s1Data;
+    const CombatMonitorStat * s2 = (const CombatMonitorStat *)s2Data;
     if( s1->iKey && !s2->iKey ) 
         return -1;
     if( !s1->iKey && s2->iKey )

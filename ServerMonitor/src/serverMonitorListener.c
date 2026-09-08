@@ -36,7 +36,7 @@ void sendfloat(SOCKET s, const char * n, float f)
     send(s, buf, (int)strlen(buf), 0);
 }
 
-static DWORD WINAPI listenThreadMain(void *data) {
+static unsigned __stdcall listenThreadMain(void *data) {
     struct sockaddr_in    addr_in;
     int port=DEFAULT_SVRMON_LISTEN_PORT;
     int result;
@@ -175,7 +175,7 @@ static bool issueCommand(CommandID cmdID, const char* args)
     switch( cmdID )
     {
         case eCmdID_StartDBserver:
-            cmdRelayCmdToAllClients((ListViewCallbackFunc) onRelayStartDbServer);
+            cmdRelayCmdToAllClients(onRelayStartDbServer);
             break;
         case eCmdID_ShutdownDBserver:
             svrMonShutdownAll(&g_state, args);
@@ -198,13 +198,13 @@ static bool issueCommand(CommandID cmdID, const char* args)
             listViewForEach(g_state.lvMapsStuck, smcbMsDelink, &g_state);
             break;
         case eCmdID_KillLauncher:
-            cmdRelayCmdToAllClients((ListViewCallbackFunc) onRelayKillAllLauncher);
+            cmdRelayCmdToAllClients(onRelayKillAllLauncher);
             break;
         case eCmdID_StartLauncher:
-            cmdRelayCmdToAllClients((ListViewCallbackFunc) onRelayStartLauncher);
+            cmdRelayCmdToAllClients(onRelayStartLauncher);
             break;
         case eCmdID_KillMapservers:
-            cmdRelayCmdToAllClients((ListViewCallbackFunc) onRelayKillAllMapserver);
+            cmdRelayCmdToAllClients(onRelayKillAllMapserver);
             break;
         case eCmdID_ReloadConfig:
             // TBD - what command is this??
@@ -307,7 +307,7 @@ static QueuedCommand* queueCommand(char* buf, SOCKET s, ServerStats* pCurStats)
 }
 
 #define MAX_CMD_LEN 2048
-static DWORD WINAPI commandThreadMain(void *data)
+static unsigned __stdcall commandThreadMain(void *data)
 {
     struct sockaddr_in    addr_in;
     int port=DEFAULT_SVRMON_COMMAND_PORT;

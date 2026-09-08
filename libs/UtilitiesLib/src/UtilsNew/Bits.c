@@ -62,10 +62,10 @@ void Bits_setrun_dbg(Bits *hbits, int idx, int len DBG_PARMS)
         Bits_set_dbg(hbits, idx+i DBG_PARMS_CALL);
 }
 
-void Bits_setbytes_dbg(Bits *hbits, void *mem, int bytecount DBG_PARMS)
+void Bits_setbytes_dbg(Bits *hbits, const void *mem, int bytecount DBG_PARMS)
 {
     int i, j;
-    U8 *bytes = mem;
+    const U8 *bytes = mem;
     aint_setsize_dbg(hbits, (bytecount + sizeof(unsigned) - 1)/sizeof(unsigned) DBG_PARMS_CALL);
     for(i = 0; bytecount > 0; i++)
     {

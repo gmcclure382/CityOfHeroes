@@ -185,8 +185,9 @@ void ContactDialog( Packet *pak, int yesno )
     dialogStd(yesno?DIALOG_YES_NO:DIALOG_OK, descstr, NULL, NULL, contactSendYesResponse, yesno?contactSendNoResponse:NULL, 1 );
 }
 
-static void ContactDialogContextSendReply(int link, ContactDialogContext* dialogContext)
+static void ContactDialogContextSendReply(int link, void* dialogContextData)
 {
+    ContactDialogContext* dialogContext = (ContactDialogContext*)dialogContextData;
     START_INPUT_PACKET(pak, CLIENTINP_CONTACT_DIALOG_RESPONSE);
     pktSendBitsPack(pak, 1, link);
     END_INPUT_PACKET
@@ -248,6 +249,11 @@ void ContactSendTaskforceAcceptRequest(int timeLimits, int limitedLives, int pow
     END_INPUT_PACKET
 }
 
+static void ContactResponseOptionDestroyAdapter(void* arg0)
+{
+    ContactResponseOptionDestroy((ContactResponseOption*)arg0);
+}
+
 void receiveContactDialog( Packet *pak )
 {
     int i;
@@ -256,7 +262,7 @@ void receiveContactDialog( Packet *pak )
     if(!dialogContext.responseOptions)
         eaCreate(&dialogContext.responseOptions);
     else
-        eaClearEx(&dialogContext.responseOptions, ContactResponseOptionDestroy);
+        eaClearEx(&dialogContext.responseOptions, ContactResponseOptionDestroyAdapter);
 
     for(i = 0; i < dialogContext.response.responsesFilled; i++)
     {
@@ -274,7 +280,7 @@ void receiveContactDialog( Packet *pak )
 void receiveContactDialogClose( Packet *pak )
 {
     extern int gEnterTailor;
-    eaClearEx(&dialogContext.responseOptions, ContactResponseOptionDestroy);
+    eaClearEx(&dialogContext.responseOptions, ContactResponseOptionDestroyAdapter);
     cd_clear();
     if (gEnterTailor)
     {

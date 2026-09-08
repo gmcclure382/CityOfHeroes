@@ -33,6 +33,9 @@ typedef void* (*CustomMemoryAllocator)(void* data, size_t size);
 #define ccmEACast(handle)                        (cpponly_reinterpret_cast(ccmEArrayHandle*)(handle))
 #define cccEACast(handle)                        (cpp_const_cast(ccmEArrayHandle*)(cpponly_reinterpret_cast(cccEArrayHandle*)(handle)))
 
+// Mutable array storage whose element values remain read-only.
+#define cEAHandleCast(handle) (cpp_const_cast(cEArrayHandle*)(cpp_reinterpret_cast(cccEArrayHandle*)(handle)))
+
 // Use eags() in a debugger
 #define eaSize(handle)                            (EAPtrTest(handle), eaSizeUnsafe(handle))
 #define eaSizeUnsafe(handle)                    (*(handle) ? EArrayFromHandle(*(handle))->count : 0) // should only be used for void***
@@ -79,13 +82,13 @@ size_t    eaMemUsage(cccEArrayHandle* handle);    // get the amount of memory ac
 #define eaInsert(handle, structptr, i)            eaInsertDbg(mEACast(handle), structptr, i, __FILE__, __LINE__)
 #define eaInsertConst(handle, structptr, i)        eaInsertDbg(cEACast(handle), cpp_const_cast(void*)(cpponly_reinterpret_cast(const void*)(structptr)), i, __FILE__, __LINE__)
 #define eaRemove(handle, i)                        eaRemoveDbg(mEACast(handle), i)
-#define eaRemoveConst(handle, i)                eaRemoveDbg(cEACast(handle), i)
+#define eaRemoveConst(handle, i)                eaRemoveConstDbg(cEAHandleCast(handle), i)
 void    eaRemoveAndDestroy(mEArrayHandle* handle, int i, EArrayItemDestructor destructor);                // remove and destroy the i'th element. silent fail.
 #define eaRemoveFast(handle, i)                    eaRemoveFastDbg(mEACast(handle), i)
-#define eaRemoveFastConst(handle, i)            eaRemoveFastConstDbg(cpponly_reinterpret_cast(cEArrayHandle*)(handle), i)
-#define eaFind(handle, structptr)                eaFindDbg(cccEACast(handle), structptr)
-#define eaFindAndRemove(handle, structptr)        eaFindAndRemoveDbg(cEACast(handle), structptr)
-#define eaFindAndRemoveFast(handle, structptr)    eaFindAndRemoveFastDbg(cEACast(handle), structptr)
+#define eaRemoveFastConst(handle, i)            eaRemoveFastConstDbg(cEAHandleCast(handle), i)
+#define eaFind(handle, structptr)                eaFindDbg(cpp_reinterpret_cast(cccEArrayHandle*)(handle), structptr)
+#define eaFindAndRemove(handle, structptr)        eaFindAndRemoveDbg(cEAHandleCast(handle), structptr)
+#define eaFindAndRemoveFast(handle, structptr)    eaFindAndRemoveFastDbg(cEAHandleCast(handle), structptr)
 void    eaSwap(cEArrayHandle* handle, int i, int j);            // exchange the i'th element with the j'th element
 void    eaMove(cEArrayHandle* handle, int dest, int src);    // shift left or right to move the src'th element to dest
 void    eaReverse(cEArrayHandle* handle);

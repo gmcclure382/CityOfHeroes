@@ -5,7 +5,7 @@
 #include <utilitieslib/utils/timing.h>
 #include "ChatAdminUtils.h"
 
-static BOOL CALLBACK GetStringDlgProc (HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam);
+static INT_PTR CALLBACK GetStringDlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam);
 BOOL CALLBACK GetYesNoDlgProc (HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam);
 
 
@@ -40,6 +40,7 @@ typedef struct DlgParam
 {
     void * data;
     dialogHandler2 onAccept;
+    dialogTimeHandler onAcceptTime;
     dialogHandler1 onDecline;
     char * title;
     char * prompt;
@@ -71,7 +72,7 @@ void CreateDialogPrompt(HWND hWnd, char * title, char * prompt, dialogHandler2 o
     HWND hDlg = CreateDialogParam(g_hInst, 
                       MAKEINTRESOURCE(IDD_PROMPT_STRING), 
                       hWnd,
-                      (DLGPROC) GetStringDlgProc,
+                      GetStringDlgProc,
                       (LPARAM)DlgParamCreate(title, prompt,onAccept,onDecline,data));
 
     if(!hDlg)
@@ -90,7 +91,7 @@ static void fixStringButtons(HWND hDlg)
     EnableWindow(GetDlgItem(hDlg, IDOK), (count > 0) ? TRUE : FALSE);
 }
 
-static BOOL CALLBACK GetStringDlgProc (HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK GetStringDlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     DlgParam * dp = (DlgParam*)GetWindowLongPtr(hDlg, GWLP_USERDATA);
     
@@ -184,7 +185,7 @@ static void fixTimeButtons(HWND hDlg)
     EnableWindow(GetDlgItem(hDlg, IDOK), (mins > 0 ? TRUE : FALSE));
 }
 
-static BOOL CALLBACK GetTimeDlgProc (HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
+static INT_PTR CALLBACK GetTimeDlgProc(HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM lParam)
 {
     DlgParam * dp = (DlgParam*)GetWindowLongPtr(hDlg, GWLP_USERDATA);
     char buf[1000];
@@ -224,8 +225,8 @@ static BOOL CALLBACK GetTimeDlgProc (HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM
                 {
                     case IDOK: // Syncronize Data
                     {    
-                        if(dp->onAccept)
-                            dp->onAccept(dp->data, (void*)(intptr_t)computeTimeMins(hDlg));
+                        if(dp->onAcceptTime)
+                            dp->onAcceptTime(dp->data, computeTimeMins(hDlg));
                         DlgParamDestroy(dp);
 
                         GetDlgItemText(hDlg, IDC_EDIT_DAYS, buf, sizeof(buf));
@@ -267,13 +268,16 @@ static BOOL CALLBACK GetTimeDlgProc (HWND hDlg, UINT iMsg, WPARAM wParam, LPARAM
 }
 
 
-void CreateDialogPromptTime(HWND hWnd, char * title, char * prompt, dialogHandler2 onAccept, dialogHandler1 onDecline, void * data)
+void CreateDialogPromptTime(HWND hWnd, char * title, char * prompt, dialogTimeHandler onAccept, dialogHandler1 onDecline, void * data)
 {
-    HWND hDlg = CreateDialogParam(g_hInst, 
+    DlgParam * dp = DlgParamCreate(title, prompt, NULL, onDecline, data);
+    HWND hDlg;
+    dp->onAcceptTime = onAccept;
+    hDlg = CreateDialogParam(g_hInst,
         MAKEINTRESOURCE(IDD_PROMPT_TIME), 
         hWnd,
-        (DLGPROC) GetTimeDlgProc,
-        (LPARAM)DlgParamCreate(title, prompt,onAccept,onDecline,data));
+        GetTimeDlgProc,
+        (LPARAM)dp);
 
     if(!hDlg)
     {

@@ -411,7 +411,7 @@ STATIC_ASSERT(sizeof(HogOpJournalAction)==sizeof(U32)); // endianSwapping down b
         bool crit_sect_inited;
         HANDLE done_doing_operation_event;
         int last_threaded_error;
-        volatile U32 async_operation_count;
+        volatile LONG async_operation_count;
         StashTable fn_to_index_lookup;
         int *file_free_list; // EArray of free FileList indices
         int *ea_free_list; // EArray of free EAList indicies
@@ -1122,7 +1122,9 @@ static HogEAHeader *hogSerializeEAHeaders(HogFile *handle)
     return ea_headers;
 }
 
-static int intRevCompare(const int *i1, const int *i2){
+static int intRevCompare(const void* i1Data, const void* i2Data){
+    const int * i1 = (const int *)i1Data;
+    const int * i2 = (const int *)i2Data;
     if(*i1 < *i2)
         return 1;
 
@@ -1848,8 +1850,10 @@ fail:
     return data;
 }
 
-static int cmpFileOffsets(const HogFileListEntry **a, const HogFileListEntry **b)
+static int cmpFileOffsets(const void* aData, const void* bData)
 {
+    const HogFileListEntry ** a = (const HogFileListEntry **)aData;
+    const HogFileListEntry ** b = (const HogFileListEntry **)bData;
     S64 diff = (S64)(*a)->header.offset - (S64)(*b)->header.offset;
     return diff>0?1:(diff<0?-1:0);
 }
@@ -3384,10 +3388,10 @@ int hogFileModifyUpdateTimestamp(HogFile *handle, HogFileIndex file, U32 timesta
 
 static bool hog_thread_inited=false;
 static HANDLE hog_thread_handle=NULL;
-static DWORD hog_thread_id;
+static unsigned hog_thread_id;
 static VOID CALLBACK hogThreadingHasWorkFunc( ULONG_PTR dwParam);
 
-static DWORD WINAPI hogThreadingThread( LPVOID lpParam )
+static unsigned __stdcall hogThreadingThread( LPVOID lpParam )
 {
     EXCEPTION_HANDLER_BEGIN
         PERFINFO_AUTO_START("hogThreadingThread", 1);

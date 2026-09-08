@@ -159,8 +159,10 @@ void MMScrollSet_mapViewerInit(MMElementList * pList)
 // File Loading
 //------------------------------------------------------------------------------------------------------------------------
 
-int sortElements(const MMElement **a, const MMElement **b)
+int sortElements(const void* aData, const void* bData)
 {
+    const MMElement ** a = (const MMElement **)aData;
+    const MMElement ** b = (const MMElement **)bData;
     if( !(*a)->pchText || !(*a)->pchDisplayName || stricmp( (*a)->pchText, "None" ) == 0 || stricmp( (*a)->pchDisplayName, "MMSameAsBoss" ) == 0 )
         return -1;
     if( !(*b)->pchText || !(*b)->pchDisplayName || stricmp( (*b)->pchText, "None" ) == 0 || stricmp( (*b)->pchDisplayName, "MMSameAsBoss" ) == 0 )
@@ -5013,6 +5015,11 @@ F32 MMScrollSet_DrawRegionButton( MMScrollSet *pSet, MMScrollSet_Mission *pMissi
     return SS_LIST_HT*sc + pButton->ht;
 }
 
+static void deleteRegionAdapter(void* arg0)
+{
+    deleteRegion((MMRegion *)arg0);
+}
+
 static float MMScrollSet_drawRegion( MMScrollSet * pSet, MMScrollSet_Mission *pMission, MMRegion * pRegion, F32 x, F32 y, F32 z, F32 wd, F32 ht, F32 sc )
 {
     F32 startY = y, scale=1.f;
@@ -5072,7 +5079,7 @@ static float MMScrollSet_drawRegion( MMScrollSet * pSet, MMScrollSet_Mission *pM
             }
             else if ( ret == 2 )
             {
-                dialogStdCB(DIALOG_ACCEPT_CANCEL, textStd("MMReallyDeleteDetail", pRegion->pchActualDisplay?pRegion->pchActualDisplay:pRegion->pchDisplayName ), 0, 0, deleteRegion, 0, DLGFLAG_ARCHITECT|DLGFLAG_NO_TRANSLATE, pRegion );
+                dialogStdCB(DIALOG_ACCEPT_CANCEL, textStd("MMReallyDeleteDetail", pRegion->pchActualDisplay?pRegion->pchActualDisplay:pRegion->pchDisplayName ), 0, 0, deleteRegionAdapter, 0, DLGFLAG_ARCHITECT|DLGFLAG_NO_TRANSLATE, pRegion );
                 collisions_off_for_rest_of_frame = 1; 
             }
             else if( pSet->current_mission >= 0 && pSet->current_page == 1 && ret == 3 ) // started a drag

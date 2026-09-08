@@ -266,7 +266,7 @@ int eaPushDbg(mEArrayHandle* handle, void* structptr, const char *file, int line
 
 int eaPushUniqueDbg(mEArrayHandle* handle, void* structptr, const char *file, int line) // add to the end of the list, returns the index it was added at (the new size)
 {
-    int idx = eaFindDbg(handle, structptr);
+    int idx = eaFindDbg((cccEArrayHandle*)handle, structptr);
     if (idx < 0)
         idx = eaPushDbg(handle, structptr, file, line);
     return idx;
@@ -381,6 +381,11 @@ void* eaRemoveDbg(mEArrayHandle* handle, int i) // remove the i'th element, NULL
     return structptr;
 }
 
+const void* eaRemoveConstDbg(cEArrayHandle* handle, int i)
+{
+    return eaRemoveDbg(cEACast(handle), i);
+}
+
 void eaRemoveAndDestroy(mEArrayHandle* handle, int i, EArrayItemDestructor destructor)
 {
     void *res = eaRemoveDbg(handle,i);
@@ -408,7 +413,7 @@ const void* eaRemoveFastConstDbg(cEArrayHandle* handle, int i)
     return eaRemoveFastDbg(cEACast(handle), i);
 }
 
-int    eaFindDbg(mEArrayHandle* handle, const void* structptr)
+int    eaFindDbg(cccEArrayHandle* handle, const void* structptr)
 {
     int i;
     EArray* pArray = EArrayFromHandle(*handle);
@@ -420,19 +425,19 @@ int    eaFindDbg(mEArrayHandle* handle, const void* structptr)
     return -1;
 }
 
-int    eaFindAndRemoveDbg(mEArrayHandle* handle, const void* structptr)
+int    eaFindAndRemoveDbg(cEArrayHandle* handle, const void* structptr)
 {
-    int    idx = eaFindDbg(handle,structptr);
+    int    idx = eaFindDbg((cccEArrayHandle*)handle,structptr);
     if(idx >= 0)
-        eaRemoveDbg(handle,idx);
+        eaRemoveConstDbg(handle,idx);
     return idx;
 }
 
-int    eaFindAndRemoveFastDbg(mEArrayHandle* handle, const void* structptr)
+int    eaFindAndRemoveFastDbg(cEArrayHandle* handle, const void* structptr)
 {
-    int    idx = eaFindDbg(handle,structptr);
+    int    idx = eaFindDbg((cccEArrayHandle*)handle,structptr);
     if(idx >= 0)
-        eaRemoveFastDbg(handle,idx);
+        eaRemoveFastConstDbg(handle,idx);
     return idx;
 }
 
@@ -945,8 +950,10 @@ int eaiCompare(int** array1, int** array2)
     return (*array1)[i]-(*array2)[i];
 }
 
-static int s_eaiSortedCmp(const int *key, const int *elem)
+static int s_eaiSortedCmp(const void* keyData, const void* elemData)
 {
+    const int * key = (const int *)keyData;
+    const int * elem = (const int *)elemData;
     return *key - *elem;
 }
 
