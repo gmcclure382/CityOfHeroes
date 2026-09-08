@@ -10,6 +10,13 @@ Most dependencies are vendored in the [3rdparty](3rdparty). Compile
 dependencies will be used automatically during compilation. Runtime
 dependencies include:
 
+## Visual Studio 2026
+
+The VS2026 compiler is a hard dependency to compile this project. It's
+currently not ported to any other compiler. Besides the compiler dependency,
+part of the build step involves processing Visual Studio project files to
+generate code.
+
 ## SQL Server
 
 https://www.microsoft.com/en-us/sql-server/sql-server-downloads
