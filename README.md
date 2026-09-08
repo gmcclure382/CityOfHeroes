@@ -43,6 +43,16 @@ It's basically the bridge between the game and the database. [ODBC 17
 x86](https://go.microsoft.com/fwlink/?linkid=2361647) is the only driver that's
 supported. Just download and run the installer.
 
+# Building
+
+Open [build/vs2019/master.sln](build/vs2019/master.sln) with Visual Studio.
+Currently, only x86 builds are supported, which needs to be changed from the
+default x64 in a drop-down close to the top of the editor next to the "Release"
+or "Debug" configuration. After the build is complete, the executables and
+libraries will be in an "out" folder.
+
+This guide is intended for a beginner. These exact steps aren't all necessary.
+
 # Usage
 
 For local testing, at the minimum, the DBServer, one MapServer, and the Game
