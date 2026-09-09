@@ -13,3 +13,10 @@ if(NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
 endif()
 
 add_subdirectory(Utilities/StructParser)
+
+if(WIN32)
+	include(dependencies/Zlib)
+	include(dependencies/CryptoPP)
+	add_subdirectory(libs/crashrpt)
+	add_subdirectory(libs/UtilitiesLib)
+endif()
