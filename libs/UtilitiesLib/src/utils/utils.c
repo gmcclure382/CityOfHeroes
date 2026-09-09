@@ -1288,44 +1288,6 @@ char *strncpyt(char *dst, const char *src, int dst_size) // Does a strncpy, null
     return dst;
 }
 
-#if _MSC_VER < 1400
-// VS2005 has these functions already
-errno_t strcpy_s(char *dst, size_t dst_size, const char *src) // Same as strncpyt
-{
-    errno_t res;
-    if(isDevelopmentMode())
-        assert(strlen(src) <= dst_size - 1); // VS2005 asserts on truncating with strcpy_s, devassert for now
-    res = strncpy_s(dst, dst_size, src, dst_size - 1);
-    dst[dst_size-1] = 0;
-#ifdef STR_OVERRUN_DEBUG
-    {
-        // Fills all of the area the caller claims is available with a fill, to catch people passing in too small of buffer sizes
-        size_t len = strlen(dst)+1;
-        if (dst_size > len) {
-            memset(dst + len, 0xf9, dst_size - len - 1);
-        }
-    }
-#endif
-    return res;
-}
-
-errno_t strcat_s(char *dst, size_t dst_size, const char *src)
-{
-    strncat_count(dst, src, (int)dst_size);
-    return NO_ERROR;
-}
-
-errno_t strncpy_s(char* dst, size_t dst_size, const char* src, size_t count)
-{
-    assert(count <= dst_size);
-    strncpy(dst, src, count);
-    assert(dst_size > 0);
-    assert(count >= 0);
-    if(count < dst_size)
-        dst[count]=0; // null terminate
-    return NO_ERROR;
-}
-#else // functions to make VS2005 not a pain to use
 int open_cryptic(const char* filename, int oflag)
 {
     int fd;
@@ -1334,7 +1296,6 @@ int open_cryptic(const char* filename, int oflag)
 
     return fd;
 }
-#endif
 
 char *strcpy_unsafe(char *dst, const char *src)
 {
