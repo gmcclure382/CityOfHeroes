@@ -41,10 +41,12 @@ if(WIN32)
 	if(NOT CMAKE_SIZEOF_VOID_P EQUAL 4)
 		message(FATAL_ERROR "CoX supports only 32-bit Windows builds")
 	endif()
+	enable_language(RC)
 	include(dependencies/Zlib)
 	include(dependencies/CryptoPP)
 	add_subdirectory(libs/crashrpt)
 	add_subdirectory(libs/UtilitiesLib)
+	add_subdirectory(Utilities/pig)
 endif()
 
 # Require verification for explicit target builds as well as the default build.

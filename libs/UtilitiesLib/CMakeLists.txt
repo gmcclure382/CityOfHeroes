@@ -385,7 +385,7 @@ set_target_properties(UtilitiesLib PROPERTIES
 if(MINGW)
 	# Legacy containers share storage through typed pointers and scalars.
 	target_compile_options(UtilitiesLib PUBLIC
-		-fms-extensions -fno-strict-aliasing)
+		$<$<COMPILE_LANGUAGE:C,CXX>:-fms-extensions;-fno-strict-aliasing>)
 endif()
 target_compile_definitions(UtilitiesLib PRIVATE
 	_CRT_SECURE_NO_WARNINGS _WINSOCK_DEPRECATED_NO_WARNINGS
