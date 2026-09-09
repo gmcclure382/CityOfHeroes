@@ -8,3 +8,6 @@ target_compile_definitions(pig PRIVATE
 if(MINGW)
 	target_link_options(pig PRIVATE -static)
 endif()
+if(COX_BUILD_PIG_TESTS)
+	add_subdirectory(tests)
+endif()
