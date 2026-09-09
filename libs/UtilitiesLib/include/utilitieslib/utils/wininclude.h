@@ -5,6 +5,7 @@
 
 #undef CreateThread
 #include <winsock2.h>
+#include <windows.h>
 #include <winbase.h>
 #include <iphlpapi.h>
 #define CreateThread include_utils_h_for_threads

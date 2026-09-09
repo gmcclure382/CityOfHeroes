@@ -131,20 +131,6 @@
 
 C_DECLARATIONS_BEGIN
 
-#ifdef _WINBASE_
-#error("winbase.h has already been included before stdtypes.h");
-#endif
-
-#ifndef _WIN32_WINNT
-#    if defined(CLIENT) || defined(UTILITIESLIB)
-#        define _WIN32_WINNT 0x0601 // Windows 7 and up
-#    else
-#        define _WIN32_WINNT 0x0601 // Windows 7 and up
-#    endif
-#else
-#error("_WIN32_WINNT is already defined");
-#endif
-
 #pragma warning (disable:4244)        /* disable bogus conversion warnings */
 #pragma warning (disable:4305)        /* disable bogus conversion warnings */
 
