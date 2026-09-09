@@ -1,0 +1,36 @@
+{
+    "version": 5,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 24,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "mingw",
+            "displayName": "MinGW x64",
+            "generator": "Ninja Multi-Config",
+            "binaryDir": "${sourceDir}/out/build/${presetName}",
+            "toolchainFile": "${sourceDir}/cmake/toolchains/mingw-w64-x86_64.cmake",
+            "cacheVariables": {
+                "CMAKE_CONFIGURATION_TYPES": "Debug;Release",
+                "CPM_SOURCE_CACHE": {
+                    "type": "PATH",
+                    "value": "${sourceDir}/out/build/CPM"
+                }
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "mingw-debug",
+            "configurePreset": "mingw",
+            "configuration": "Debug"
+        },
+        {
+            "name": "mingw-release",
+            "configurePreset": "mingw",
+            "configuration": "Release"
+        }
+    ]
+}

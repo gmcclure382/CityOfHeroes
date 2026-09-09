@@ -19,8 +19,6 @@
 
 #define MAX_MAGIC_WORDS_PER_BASE_SOURCE_PARSER 12
 
-#define MAX_DEPENDENT_LIBRARIES 32
-
 #define MAX_WIKI_PROJECTS 64
 #define MAX_WIKI_CATEGORIES 256
 
@@ -34,16 +32,30 @@ public:
     SourceParser();
     ~SourceParser();
 
-    int ParseSource(
-        std::filesystem::path const& prjPath,
-        std::filesystem::path const& srcDir,
-        std::filesystem::path const& commonDir,
-        std::filesystem::path const& outDir,
-        std::filesystem::path const& intDir,
-        std::string const& platform,
-        std::string const& configuration,
-        std::filesystem::path const& slnPath
-    );
+	/*
+	 * Generate parser data for one target on a fresh SourceParser instance.
+	 * All arguments are borrowed inputs. targetName and configuration must
+	 * be nonempty; directory and source paths must be absolute. srcDir,
+	 * commonDir and projectDir must exist. isExecutable selects executable
+	 * autorun output. sourceFiles is the complete list supplied via stdin;
+	 * only eligible C sources and headers are scanned.
+	 *
+	 * Reads source files, parser settings and cached dependencies; creates
+	 * or updates AutoGen files and intermediate build markers. Returns 0
+	 * on success, including an unchanged-input quick exit. Filesystem
+	 * errors throw; parser assertion failures terminate the process.
+	 * Uses global parser/file-wrapper state and is not thread-safe.
+	 */
+	int ParseSource(
+		std::string const& targetName,
+		std::filesystem::path const& srcDir,
+		std::filesystem::path const& commonDir,
+		std::filesystem::path const& outDir,
+		std::filesystem::path const& intDir,
+		std::string const& configuration,
+		std::filesystem::path const& projectDir,
+		bool isExecutable,
+		std::vector<std::filesystem::path> const& sourceFiles);
 
     void NukeCObjFile(char *pFileName);
 
@@ -52,11 +64,6 @@ public:
     IdentifierDictionary *GetDictionary() { return &m_IdentifierDictionary; }
 
     void SetExtraDataFlagForFile(char *pFileName, int iFlag);
-
-    int GetNumLibraries(void) { return m_iNumDependentLibraries; }
-    char *GetNthLibraryName(int n) { return m_DependentLibraryNames[n]; }
-    char *GetNthLibraryFullPath(int n) { return m_DependentLibraryFullPaths[n]; }
-    bool IsNthLibraryXBoxExcluded(int n) { return m_bExcludeLibrariesFromXBOX[n]; }
 
     AutoRunManager *GetAutoRunManager() { return m_pAutoRunManager; }
 
@@ -103,7 +110,6 @@ private:
 
     int m_iExtraDataPerFile[MAX_FILES_IN_PROJECT];
 
-    std::filesystem::path m_prjPath;
     std::string m_shortenedPrjFileName;
 
     std::string m_intDir;
@@ -111,14 +117,6 @@ private:
     std::string m_srcDir;
     std::string m_commonDir;
     std::string m_prjDir;
-    std::string m_prjFileName;
-    std::filesystem::path m_slnPath;
-
-    int m_iNumDependentLibraries;
-    char m_DependentLibraryNames[MAX_DEPENDENT_LIBRARIES][MAX_PATH];
-    char m_DependentLibraryFullPaths[MAX_DEPENDENT_LIBRARIES][MAX_PATH];
-    bool m_bExcludeLibrariesFromXBOX[MAX_DEPENDENT_LIBRARIES];
-
 
     //esnure that the project contains the two master autogen files
     bool m_FoundAutoGenFile1;
@@ -132,25 +130,13 @@ private:
     //whether the project we're working on is an executable vs. a library
     bool m_bIsAnExecutable;
 
-    //---------------stuff used to do command-line compilation of auto-generated C files
-
-    //stuff passed in on the command line
-    std::string m_platform;
     std::string m_configuration;
-
-    //stuff ripped out of vcproj file
-    char m_AdditionalIncludeDirs[TOKENIZER_MAX_STRING_LENGTH];
-    char m_PreprocessorDefines[TOKENIZER_MAX_STRING_LENGTH];
-
-    //stuff used to check whether we need to C file compiling
-    bool m_bCleanBuildHappened;
-    bool m_bProjectFileChanged;
 
     SourceParserVar *m_pFirstVar;
 
 private:
-    void AddProjectFiles(std::vector<std::string> const& attributes);
-    void ProcessProjectFile();
+	void AddProjectFiles(
+		std::vector<std::filesystem::path> const& files);
     bool NeedToUpdateFile(char *pFileName, int iExtraData,  bool bForceUpdateUnlessFileDoesntExist);
     void ScanSourceFile(char *pSourceFile);
     
@@ -168,15 +154,13 @@ private:
     int FindProjectFileIndex(char *pFileName);
     void DestroyLegacyMasterFiles(bool bBuildAll);
     void MakeAutoGenDirectory();
-    void ProcessSolutionFile();
     void CheckForRequiredFiles(const char *pFileName);
-    bool IsLibraryXBoxExcluded(char *pLibName);
     bool DidCleanBuildJustHappen();
     void CleanOutAllAutoGenFiles();
     bool IsQuickExitPossible();
+	bool SavedFileListMatchesCurrentProjectFiles();
     void CreateCleanBuildMarkerFile();
     void CreateParsers(void);
-    int GetSVNVersion(char *pFileName);
     bool MakeSpecialAutoRunFunction(void);
 
     void AddVariableValue(char *pVarName, char *pValue);

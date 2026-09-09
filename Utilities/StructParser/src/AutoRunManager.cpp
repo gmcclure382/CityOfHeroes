@@ -242,15 +242,7 @@ bool AutoRunManager::WriteOutData(void)
         fprintf(pOutFile, "extern void %s(void);\n", pAutoRun->functionName);
     }
 
-    int iLibNum, iOrderNum;
-
-    for (iLibNum = 0; iLibNum < m_pParent->GetNumLibraries(); iLibNum++)
-    {
-        for (iOrderNum = 0; iOrderNum < AUTORUN_ORDER_COUNT; iOrderNum++)
-        {
-            fprintf(pOutFile, "void doAutoRuns_%s_%d(void);\n", m_pParent->GetNthLibraryName(iLibNum), iOrderNum);
-        }
-    }
+	int iOrderNum;
 
     for (iOrderNum = 0; iOrderNum < AUTORUN_ORDER_COUNT; iOrderNum++)
     {
@@ -259,21 +251,6 @@ bool AutoRunManager::WriteOutData(void)
 
         fprintf(pOutFile, "\tstatic int once = 0;\n\tif (once) return;\n\tonce = 1;\n");
 
-
-        for (iLibNum = 0; iLibNum < m_pParent->GetNumLibraries(); iLibNum++)
-        {    
-            if (m_pParent->IsNthLibraryXBoxExcluded(iLibNum))
-            {
-                fprintf(pOutFile, "\t#ifndef _XBOX\n");
-            }
-
-            fprintf(pOutFile, "\tdoAutoRuns_%s_%d();\n", m_pParent->GetNthLibraryName(iLibNum), iOrderNum);        
-    
-            if (m_pParent->IsNthLibraryXBoxExcluded(iLibNum))
-            {
-                fprintf(pOutFile, "\t#endif\n");
-            }
-        }
 
         for (iAutoRunNum = 0; iAutoRunNum < m_iNumAutoRuns; iAutoRunNum++)
         {

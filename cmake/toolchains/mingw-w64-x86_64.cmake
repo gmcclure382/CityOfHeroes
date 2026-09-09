@@ -1,0 +1,28 @@
+set(CMAKE_SYSTEM_NAME Windows)
+set(CMAKE_SYSTEM_PROCESSOR x86_64)
+
+set(_mingw_prefix x86_64-w64-mingw32)
+set(CMAKE_C_COMPILER "${_mingw_prefix}-gcc")
+set(CMAKE_CXX_COMPILER "${_mingw_prefix}-g++")
+set(CMAKE_RC_COMPILER "${_mingw_prefix}-windres")
+
+# Use the UCRT for the secure CRT APIs used by StructParser.
+set(CMAKE_C_FLAGS_INIT "-mcrtdll=ucrt")
+set(CMAKE_CXX_FLAGS_INIT "-mcrtdll=ucrt")
+set(CMAKE_EXE_LINKER_FLAGS_INIT "-mcrtdll=ucrt")
+set(CMAKE_SHARED_LINKER_FLAGS_INIT "-mcrtdll=ucrt")
+
+if(NOT CMAKE_FIND_ROOT_PATH)
+    execute_process(
+        COMMAND "${CMAKE_C_COMPILER}" -print-sysroot
+        OUTPUT_VARIABLE CMAKE_FIND_ROOT_PATH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        COMMAND_ERROR_IS_FATAL ANY
+    )
+endif()
+set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
+set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
+set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
+
+unset(_mingw_prefix)

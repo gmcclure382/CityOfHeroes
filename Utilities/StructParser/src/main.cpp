@@ -4,6 +4,8 @@
 #include "strutils.h"
 #include <map>
 #include <regex>
+#include <iostream>
+#include <vector>
 
 namespace fs = std::filesystem;
 
@@ -24,16 +26,6 @@ OPTION_STRUCT gOptions[] =
 };
 
 #define NUM_OPTIONS (sizeof(gOptions) / sizeof(gOptions[0]))
-
-static char* RemoveTerminatingSeparator(char* dir)
-{
-    auto length = strlen(dir);
-    if (length > 0 && (dir[length - 1] == '\\' || dir[length - 1] == '/'))
-    {
-        dir[length - 1] = 0;
-    }
-    return dir;
-}
 
 int ReadOptionsFromFile(Tokenizer *pTokenizer)
 {
@@ -109,141 +101,121 @@ void ProcessOptionFile(void)
 class CommandLineParser
 {
 public:
-    CommandLineParser()
-    {
-        std::string cmdline{ ::GetCommandLineA() };
-        std::regex r{ R"((\w+)\s*=\s*(?:(?:\"(.+?)\")|(.+?))(?:;|$))" };
+	CommandLineParser(int argc, char* argv[])
+	{
+		for (int i = 1; i < argc; ++i)
+			parse(argv[i]);
+	}
 
-        std::sregex_iterator const end;
-        for (std::sregex_iterator it(cmdline.begin(), cmdline.end(), r); it != end; ++it)
-        {
-            // Group 2 is quoted, group 3 is unquoted
-            auto kvit = args_.emplace(it->str(1), it->str((*it)[2].matched ? 2 : 3));
-            if (kvit.first->second.empty())
-            {
-                throw std::invalid_argument(kvit.first->first);
-            }
-        }
-    }
+	std::string const& get(char const* name) const
+	{
+		auto it = args_.find(name);
+		if (it == args_.end())
+			throw std::invalid_argument(name);
+		return it->second;
+	}
 
-    std::string const& get(char const* name) const
-    {
-        auto it = args_.find(name);
-        if (it == args_.end())
-        {
-            throw std::invalid_argument(name);
-        }
-        return it->second;
-    }
-    // Naming conventions are:
-    //   Path:  Full relative or absolute name of a file such as ..\..\my.vcxproj
-    //   Dir:   Relative or absolute location of  a directory in the file system
-    fs::path getAsPath(char const* name) const
-    {
-        return { get(name) };
-    }
+	fs::path getAsAbsoluteDir(char const* name) const
+	{
+		auto path = fs::absolute(get(name));
+		if (path.has_relative_path() && !path.has_filename())
+			path = path.parent_path();
+		return path.make_preferred();
+	}
 
-    fs::path getAsAbsolutePath(char const* name) const
-    {
-        return fs::absolute(get(name));
-    }
-
-    fs::path getAsValidatedAbsolutePath(char const* name) const
-    {
-        auto path = getAsAbsolutePath(name);
-        if (!fs::exists(path))
-        {
-            throw std::invalid_argument(name);
-        }
-        return path;
-    }
-
-    fs::path getAsDir(char const* name) const
-    {
-        auto val = get(name);
-        if (val[val.length() - 1] == '\\')
-        {
-            return { val.begin(), val.end() - 1 };
-        };
-        return { val };
-    }
-
-    fs::path getAsAbsoluteDir(char const* name) const
-    {
-        return fs::absolute(getAsDir(name));
-    }
-
-    fs::path getAsValidatedAbsoluteDir(char const* name) const
-    {
-        auto path = getAsAbsoluteDir(name);
-        if (!fs::exists(path))
-        {
-            throw std::invalid_argument(name);
-        }
-        return path;
-    }
-
+	fs::path getAsValidatedAbsoluteDir(char const* name) const
+	{
+		auto path = getAsAbsoluteDir(name);
+		if (!fs::is_directory(path))
+			throw std::invalid_argument(name);
+		return path;
+	}
 
 private:
-    CommandLineParser(CommandLineParser const& other) = delete;
-    CommandLineParser& operator = (CommandLineParser& other) = delete;
+	void parse(std::string const& argument)
+	{
+		std::regex r{
+			R"((\w+)\s*=\s*(?:(?:\"(.+?)\")|(.+?))(?:;|$))"
+		};
+		std::sregex_iterator const end;
+		std::sregex_iterator it(argument.begin(), argument.end(), r);
+		for (; it != end; ++it) {
+			// Group 2 is quoted, group 3 is unquoted.
+			auto value = it->str((*it)[2].matched ? 2 : 3);
+			if (value.empty())
+				throw std::invalid_argument(it->str(1));
+			args_.emplace(it->str(1), value);
+		}
+	}
 
-    struct CaseLess
-    {
-        struct Compare
-        {
-            bool operator() (unsigned char const& lhs, unsigned char const& rhs) const
-            {
-                return std::tolower(lhs) < std::tolower(rhs);
-            }
-        };
+	struct CaseLess
+	{
+		bool operator()(std::string const& lhs,
+				std::string const& rhs) const
+		{
+			return std::lexicographical_compare(lhs.begin(),
+				lhs.end(), rhs.begin(), rhs.end(),
+				[](unsigned char a, unsigned char b) {
+					return std::tolower(a) <
+						std::tolower(b);
+				});
+		}
+	};
 
-        bool operator() (std::string const& lhs, std::string const& rhs) const
-        {
-            return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), Compare());
-        }
-    };
-
-    std::map<std::string, std::string, CaseLess> args_;
+	std::map<std::string, std::string, CaseLess> args_;
 };
 
 int main(int argc, char* argv[])
 {
-    try
-    {
-        ProcessOptionFile();
-        CommandLineParser cmlLineParser;
+	try {
+		ProcessOptionFile();
+		CommandLineParser args(argc, argv);
 
-        auto prjPath = cmlLineParser.getAsValidatedAbsolutePath("PrjPath");
-        auto srcDir = cmlLineParser.getAsValidatedAbsoluteDir("SrcDir");
-        auto commonDir = cmlLineParser.getAsValidatedAbsoluteDir("CommonDir");
-        auto outDir = cmlLineParser.getAsAbsoluteDir("OutDir");
-        auto intDir = cmlLineParser.getAsAbsoluteDir("IntDir");
+		auto targetName = args.get("TargetName");
+		auto srcDir = args.getAsValidatedAbsoluteDir("SrcDir");
+		auto commonDir = args.getAsValidatedAbsoluteDir("CommonDir");
+		auto outDir = args.getAsAbsoluteDir("OutDir");
+		auto intDir = args.getAsAbsoluteDir("IntDir");
+		auto configuration = args.get("Configuration");
+		auto projectDir = args.getAsValidatedAbsoluteDir("ProjectDir");
+		auto isExecutable =
+			_stricmp(args.get("IsExecutable").c_str(), "true") == 0;
 
-        auto platform = cmlLineParser.get("Platform");
-        auto configuration = cmlLineParser.get("Configuration");
+		std::vector<fs::path> sourceFiles;
+		std::string sourceFile;
+		while (std::getline(std::cin, sourceFile)) {
+			if (!sourceFile.empty() && sourceFile.back() == '\r')
+				sourceFile.pop_back();
+			if (sourceFile.empty())
+				continue;
+			auto sourcePath = fs::absolute(sourceFile);
+			sourceFiles.push_back(sourcePath.make_preferred());
+		}
+		if (std::cin.bad())
+			throw std::runtime_error(
+				"Could not read source list from stdin");
 
-        auto slnPath = cmlLineParser.getAsValidatedAbsolutePath("SlnPath");
-
-        auto sourceParser = std::make_unique<SourceParser>(); // SourceParser is over a MB big so don't allocate it on the stack
-        return sourceParser->ParseSource(prjPath, srcDir, commonDir, outDir, intDir, platform, configuration, slnPath);
-    }
-    catch (std::invalid_argument const& e)
-    {
-        printf("ERROR: Argument '%s' not found or not valid\n", e.what());
-        printf("  A typical argument list from a custom build step looks like:\n"
-            "     PrjPath=$(ProjectPath);\n"
-            "     SrcDir=$(ProjectDir)..\\..\\src\\;\n"
-            "     CommonDir=$(ProjectDir)..\\..\\..\\Common\\;\n"
-            "     OutDir=$(OutDir);\n"
-            "     IntDir=$(IntDir);\n"
-            "     Platform=$(Platform);\n"
-            "     Configuration=$(Configuration);\n"
-            "     SlnPath=$(SolutionPath)\n");
-    }
-    catch (std::exception const& e)
-    {
-        printf("ERROR: %s", e.what());
-    }
-    return 1;
+		// SourceParser is over a MB, so keep it off the stack.
+		auto sourceParser = std::make_unique<SourceParser>();
+		return sourceParser->ParseSource(targetName, srcDir, commonDir,
+			outDir, intDir, configuration, projectDir, isExecutable,
+			sourceFiles);
+	} catch (std::invalid_argument const& e) {
+		printf("ERROR: Argument '%s' not found or not valid\n",
+			e.what());
+		printf("  Arguments (each passed as a separate argument):\n"
+			"    TargetName=Game\n"
+			"    SrcDir=.../Game/src\n"
+			"    CommonDir=.../Common\n"
+			"    OutDir=...\n"
+			"    IntDir=...\n"
+			"    Configuration=Debug\n"
+			"    ProjectDir=.../Game\n"
+			"    IsExecutable=true\n"
+			"  Read source paths only from stdin, one per line.\n"
+			"  Relative paths use the working directory.\n");
+	} catch (std::exception const& e) {
+		printf("ERROR: %s\n", e.what());
+	}
+	return 1;
 }
