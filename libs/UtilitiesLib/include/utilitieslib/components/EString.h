@@ -196,6 +196,17 @@ static INLINEDBG char* estrInternalTempFill(EString *estr, unsigned int bufsize)
     return estr->str;
 }
 
+
+#ifndef ESTRING_IMPL
+/* Read-only views of typed character-buffer handles. The handle may point to
+* mutable or const characters; these queries never replace or edit them.
+*/
+#define estrLength(str) (estrLength)((const char *const *)(str))
+#define estrGetCapacity(str) (estrGetCapacity)((const char **)(str))
+#define estrUTF8CharacterCount(str) \
+	(estrUTF8CharacterCount)((const char **)(str))
+#endif
+
 C_DECLARATIONS_END
 
 #endif

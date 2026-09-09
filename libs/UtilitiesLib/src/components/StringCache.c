@@ -164,7 +164,8 @@ const char* allocAddIndexedString( const char * s )
                 assert(0);
             } else {
                 // Add to list as well
-                eaPushConst(&(char**)indexed_string_list, stashElementGetStringKey(element));
+				eaPushConst(&indexed_string_list,
+					stashElementGetStringKey(element));
             }
         }
         LeaveCriticalSection(&indexed_string_table_crit);
@@ -202,7 +203,7 @@ void stringReorder(void)
     int num_strings = eaSize(&indexed_string_list);
 
     // Reorder the string table.
-    eaQSort((char**)indexed_string_list, stringCompare);
+	eaQSortConst(indexed_string_list, stringCompare);
 
     // Rebuild hash table.
     for(i = 0; i < num_strings; i++)

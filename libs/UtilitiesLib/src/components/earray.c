@@ -1,3 +1,4 @@
+#define EARRAY_IMPL
 // earray.c - provides yet another type of expandable pArray
 // these arrays are differentiated in that you generally declare them as
 // MyStruct** earray; and access them like a normal pArray of pointers
@@ -272,7 +273,8 @@ int eaPushUniqueDbg(mEArrayHandle* handle, void* structptr, const char *file, in
     return idx;
 }
 
-int eaPushArrayDbg(mEArrayHandle* handle, ccmEArrayHandle* src, const char *file, int line) // add to the end of the list, returns the index it was added at
+int eaPushArrayDbg(mEArrayHandle *handle, cccEArrayHandle *src,
+	const char *file, int line)
 {
     int count = eaSizeUnsafe(handle);
     int srcCount = eaSizeUnsafe(src);
@@ -336,7 +338,7 @@ void* eaGetDbg(ccmEArrayHandle* handle, int i)    // get i'th element (zero-base
 
 const void* eaGetConstDbg(cccEArrayHandle* handle, int i)
 {
-    return eaGetDbg(cccEACast(handle), i);
+	return eaGetDbg((ccmEArrayHandle*)handle, i);
 }
 
 void* eaLastDbg(ccmEArrayHandle* handle)
@@ -346,7 +348,7 @@ void* eaLastDbg(ccmEArrayHandle* handle)
 
 const void* eaLastConstDbg(cccEArrayHandle* handle)
 {
-    return eaLastDbg(cccEACast(handle));
+	return eaLastDbg((ccmEArrayHandle*)handle);
 }
 
 void eaInsertDbg(mEArrayHandle* handle, void* structptr, int i, const char *file, int line) // insert before i'th position, will not insert on error (i == -1, etc.)
@@ -1221,14 +1223,15 @@ int StringArrayFind(const char * const * const pArray, const char* elem)
 int StringArrayIntersectionDbg(char*** result, char * const * lhs, char * const * rhs, const char *file, int line)
 {
     int i, n;
-    eaSetSizeDbg(result, 0, file, line);
+	eaSetSizeDbg(mEACast(result), 0, file, line);
     n = eaSize(&lhs);
     for (i = 0; i < n; i++)
     {
-        if (StringArrayFind(rhs, lhs[i]) >= 0 &&
-            !(StringArrayFind(*result, lhs[i]) >= 0))
+		if (StringArrayFind((const char *const *)rhs, lhs[i]) >= 0 &&
+			StringArrayFind((const char *const *)*result,
+				lhs[i]) < 0)
         {
-            eaPushDbg(result, lhs[i], file, line);
+			eaPushDbg(mEACast(result), lhs[i], file, line);
         }
     }
     return eaSize(result);

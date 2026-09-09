@@ -219,6 +219,34 @@ int                    stashStorageIsNotNull(cStashTable table);
 
 void stashTableMultiLevelAdd( StashTable table, int depth, ... );
 
+
+#ifndef STASH_TABLE_IMPL
+/* Pointer outputs may be addresses of typed object pointers, or NULL.
+* The caller must request the type stored in the table. These adapters retain
+* the raw functions and their success/miss behavior for untyped callers.
+*/
+#define stashFindPointer(table, key, out) \
+	(stashFindPointer)(table, key, (void**)(out))
+#define stashRemovePointer(table, key, out) \
+	(stashRemovePointer)(table, key, (void**)(out))
+#define stashIntFindPointer(table, key, out) \
+	(stashIntFindPointer)(table, key, (void**)(out))
+#define stashIntRemovePointer(table, key, out) \
+	(stashIntRemovePointer)(table, key, (void**)(out))
+#define stashAddressFindPointer(table, key, out) \
+	(stashAddressFindPointer)(table, key, (void**)(out))
+#define stashAddressRemovePointer(table, key, out) \
+	(stashAddressRemovePointer)(table, key, (void**)(out))
+#define stashFindPointerConst(table, key, out) \
+	(stashFindPointerConst)(table, key, (const void**)(out))
+#define stashAddressFindPointerConst(table, key, out) \
+	(stashAddressFindPointerConst)(table, key, (const void**)(out))
+#define stashGetKey(table, key, out) \
+	(stashGetKey)(table, key, (const void**)(out))
+#define stashFindKeyByIndex(table, key, out) \
+	(stashFindKeyByIndex)(table, key, (const void**)(out))
+#endif
+
 C_DECLARATIONS_END
 
 #endif
