@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include "utilitieslib/components/BitStream.h"
 #include "utilitieslib/stdtypes.h"
-#include "zlib/zlib.h"
+#include <zlib.h>
 #include "utilitieslib/utils/error.h"
 #include "utilitieslib/utils/utils.h"
 #include "utilitieslib/utils/timing.h"

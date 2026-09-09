@@ -8,7 +8,7 @@
 #include <string.h>
 #include "utilitieslib/utils/StringUtil.h"
 #include "utilitieslib/utils/mathutil.h"
-#include "zlib/zlib.h"
+#include <zlib.h>
 
 extern int quick_vscprintf(char *format,const char *args);
 

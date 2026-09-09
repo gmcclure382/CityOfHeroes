@@ -31,7 +31,7 @@
 #include "utilitieslib/components/EString.h"
 #include "utilitieslib/components/StashTable.h"
 #include "utilitieslib/network/netio.h"
-#include "zlib/zlib.h"
+#include <zlib.h>
 #include "utilitieslib/utils/sysutil.h"
 #include "utilitieslib/utils/strings_opt.h"
 #include "utilitieslib/utils/osdependent.h"

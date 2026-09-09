@@ -2,7 +2,7 @@
 #include "utilitieslib/utils/mathutil.h"
 #include "utilitieslib/network/netcomp.h"
 #include "utilitieslib/network/netio.h"
-#include "zlib/zlib.h"
+#include <zlib.h>
 #include <stdio.h>
 
 
