@@ -495,6 +495,9 @@
     <ClInclude Include="..\..\include\utilitieslib\utils\structTokenizer.h">
       <Filter>Public Header Files\utils</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\include\utilitieslib\utils\assert_dump.h">
+      <Filter>Public Header Files\utils</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\include\utilitieslib\utils\SuperAssert.h">
       <Filter>Public Header Files\utils</Filter>
     </ClInclude>

@@ -352,6 +352,7 @@
     <ClInclude Include="..\..\include\utilitieslib\utils\structNet.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\structoldnames.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\structTokenizer.h" />
+    <ClInclude Include="..\..\include\utilitieslib\utils\assert_dump.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\SuperAssert.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\sysutil.h" />
     <ClInclude Include="..\..\include\utilitieslib\utils\textparser_types.h" />

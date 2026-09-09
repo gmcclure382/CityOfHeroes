@@ -2,7 +2,7 @@
  *    Ripped and modified version of assert.c found in the MS CRT lib.
  *    
  */
-#include "utilitieslib/utils/SuperAssert.h"
+#include "utilitieslib/utils/assert_dump.h"
 #include "utilitieslib/utils/file.h"
 #include "utilitieslib/utils/wininclude.h"
 #include "utilitieslib/utils/memlog.h"
@@ -639,7 +639,6 @@ void setAssertShardTime(int shardTime)
 #include "signal.h"
 #include "utilitieslib/network/sock.h"
 #include <time.h>
-#include <dbghelp.h>
 #include "errorrep.h"
 #include <sys/stat.h>
 #include <io.h>
@@ -2206,7 +2205,7 @@ void assertWriteFullDumpSimple(PEXCEPTION_POINTERS info)
 }
 
 
-void assertWriteFullDumpSimpleSetFlags(_MINIDUMP_TYPE flags)
+void assertWriteFullDumpSimpleSetFlags(MINIDUMP_TYPE flags)
 {
     minidump_flags = flags;
     assertWriteFullDumpSimple(NULL);
