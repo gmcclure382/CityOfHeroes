@@ -8,10 +8,11 @@
 	"configurePresets": [
 		{
 			"name": "mingw",
-			"displayName": "MinGW x64",
+			"displayName": "MinGW Win32",
 			"generator": "Ninja Multi-Config",
 			"binaryDir": "${sourceDir}/out/build/${presetName}",
-			"toolchainFile": "${sourceDir}/cmake/toolchains/mingw-w64-x86_64.cmake",
+			"toolchainFile":
+			"${sourceDir}/cmake/toolchains/mingw-w64-i686.cmake",
 			"condition": {
 				"type": "equals",
 				"lhs": "${hostSystemName}",
@@ -27,10 +28,10 @@
 		},
 		{
 			"name": "vs2026",
-			"displayName": "Visual Studio 2026 x64",
+			"displayName": "Visual Studio 2026 Win32",
 			"description": "Requires Visual Studio 2026 and CMake 4.2 or newer.",
 			"generator": "Visual Studio 18 2026",
-			"architecture": "x64",
+			"architecture": "Win32",
 			"binaryDir": "${sourceDir}/out/build/${presetName}",
 			"condition": {
 				"type": "equals",
