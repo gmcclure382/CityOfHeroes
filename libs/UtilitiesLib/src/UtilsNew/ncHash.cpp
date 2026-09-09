@@ -18,6 +18,10 @@
 
 #include "utilitieslib/UtilsNew/ncstd.h"
 #include "utilitieslib/UtilsNew/ncHash.h"
+#include <functional>
+#ifdef __GLIBCXX__
+#include <backward/hash_fun.h>
+#endif
 #pragma warning(push)
 #pragma warning(disable:6308)
 #include "google_sparsehash/src/google/dense_hash_map"
