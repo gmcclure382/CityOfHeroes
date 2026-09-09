@@ -6,7 +6,6 @@ set(CMAKE_C_COMPILER "${_mingw_prefix}-gcc")
 set(CMAKE_CXX_COMPILER "${_mingw_prefix}-g++")
 set(CMAKE_RC_COMPILER "${_mingw_prefix}-windres")
 
-# Use the UCRT for the secure CRT APIs used by StructParser.
 set(CMAKE_C_FLAGS_INIT "-mcrtdll=ucrt")
 set(CMAKE_CXX_FLAGS_INIT "-mcrtdll=ucrt")
 set(CMAKE_EXE_LINKER_FLAGS_INIT "-mcrtdll=ucrt")

@@ -12,8 +12,15 @@ function(StructParse INPUT_TARGET)
 	set(_source_list
 		"${_binary_dir}/${INPUT_TARGET}.$<CONFIG>.StructParser.sources")
 	set(_content "")
+	set(_outputs "")
 	foreach(_source IN LISTS _sources)
 		set(_absolute "$<PATH:ABSOLUTE_PATH,${_source},${_source_dir}>")
+		string(TOLOWER "${_source}" _lower_source)
+		if(_lower_source MATCHES "autogen")
+			list(APPEND _outputs "${_absolute}")
+			set_source_files_properties("${_source}"
+				PROPERTIES GENERATED TRUE)
+		endif()
 		string(APPEND _content "$<$<BOOL:${_source}>:${_absolute}>\n")
 	endforeach()
 	file(GENERATE OUTPUT "${_source_list}" CONTENT "${_content}"
@@ -21,9 +28,9 @@ function(StructParse INPUT_TARGET)
 
 	get_target_property(_type ${INPUT_TARGET} TYPE)
 	if(_type STREQUAL "EXECUTABLE")
-		set(_is_executable true)
+		set(_kind executable)
 	else()
-		set(_is_executable false)
+		set(_kind library)
 	endif()
 
 	if(CMAKE_CONFIGURATION_TYPES)
@@ -34,22 +41,17 @@ function(StructParse INPUT_TARGET)
 		set(_configuration "Default")
 	endif()
 	set(_int_dir "${_binary_dir}/${INPUT_TARGET}.dir/${_configuration}")
-	set(_out_dir "$<TARGET_FILE_DIR:${INPUT_TARGET}>")
-	set(_runner "${CMAKE_CURRENT_FUNCTION_LIST_DIR}/RunStructParser.cmake")
 
 	add_custom_target(${INPUT_TARGET}_StructParser
-		COMMAND ${CMAKE_COMMAND}
-			"-DSTRUCTPARSER_EXE=$<TARGET_FILE:StructParser>"
-			"-DSTRUCTPARSER_TARGET_NAME=${INPUT_TARGET}"
-			"-DSTRUCTPARSER_SRC_DIR=${_source_dir}/src"
-			"-DSTRUCTPARSER_COMMON_DIR=${CMAKE_SOURCE_DIR}/Common"
-			"-DSTRUCTPARSER_OUT_DIR=${_out_dir}"
-			"-DSTRUCTPARSER_INT_DIR=${_int_dir}"
-			"-DSTRUCTPARSER_CONFIGURATION=${_configuration}"
-			"-DSTRUCTPARSER_PROJECT_DIR=${_source_dir}"
-			"-DSTRUCTPARSER_IS_EXECUTABLE=${_is_executable}"
-			"-DSTRUCTPARSER_INPUT_FILE=${_source_list}"
-			-P "${_runner}"
+		COMMAND $<TARGET_FILE:StructParser::Host>
+			--target "${INPUT_TARGET}"
+			--source-dir "${_source_dir}/src"
+			--common-dir "${CMAKE_SOURCE_DIR}/Common"
+			--project-dir "${_source_dir}"
+			--kind "${_kind}"
+			--sources-file "${_source_list}"
+			--state-dir "${_int_dir}/StructParser"
+		BYPRODUCTS ${_outputs}
 		DEPENDS "${_source_list}"
 		COMMENT "Running StructParser on ${INPUT_TARGET}"
 		VERBATIM
