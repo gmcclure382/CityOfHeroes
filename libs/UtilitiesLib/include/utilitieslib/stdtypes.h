@@ -26,6 +26,8 @@
 #include <sys/stat.h>
 #include <malloc.h>
 #include <wchar.h>
+// Parse CRT inline functions before the string macros below can rewrite them.
+#include <tchar.h>
 #ifdef __cplusplus
 #    include <cstdio>
 #else
