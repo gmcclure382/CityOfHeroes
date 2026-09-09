@@ -4,6 +4,10 @@ project(CoX LANGUAGES C CXX)
 
 set(BUILD_TESTING OFF)
 set(BUILD_SHARED_LIBS OFF)
+option(COX_BUILD_UTILITIES_TESTS "Build UtilitiesLib integration checks" OFF)
+if(COX_BUILD_UTILITIES_TESTS)
+	enable_testing()
+endif()
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")

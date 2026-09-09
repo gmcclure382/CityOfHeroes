@@ -412,3 +412,7 @@ target_link_libraries(UtilitiesLib PUBLIC
 
 include(StructParser)
 StructParse(UtilitiesLib)
+
+if(COX_BUILD_UTILITIES_TESTS)
+	add_subdirectory(tests)
+endif()
