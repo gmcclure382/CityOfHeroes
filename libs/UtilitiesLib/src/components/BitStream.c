@@ -934,7 +934,7 @@ static int bsZUncompress(void* outbuf, U32* outsize, void* inbuf, U32 insize)
 void bsUnCompress(BitStream *bs, int useTypedBits, void *zstream_void) {
     char *dest;
     unsigned long byteLength;
-    unsigned long destLen, oldDestLen;
+	U32 destLen, oldDestLen;
     int ret;
     int firstBitsPack;
     unsigned long debug_byte_length = 0;
