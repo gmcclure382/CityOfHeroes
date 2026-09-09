@@ -6,6 +6,10 @@
 #include "utilitieslib/utils/tiff.h"
 #include "utilitieslib/utils/file.h"
 
+#ifdef _MSC_VER
+#define __attribute__(args)
+#endif
+
 #if (__STDC_VERSION__ >= 199901L) || __GNUC__
     #include <stdint.h>
     #include <stdbool.h>
@@ -16,7 +20,6 @@ typedef signed __int32 int32_t;
 typedef unsigned __int8 uint8_t;
 typedef unsigned __int16 uint16_t;
 typedef unsigned __int32 uint32_t;
-    #define __attribute__(args)
     #define inline __inline
 #endif
 
