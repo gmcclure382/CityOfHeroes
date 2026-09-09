@@ -1,0 +1,21 @@
+name: CMake Debug
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2025-vs2026
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 18 2026" -A Win32
+
+      - name: Build Debug
+        run: cmake --build build --config Debug --parallel
