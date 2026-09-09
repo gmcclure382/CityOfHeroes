@@ -36,6 +36,24 @@ It's basically the bridge between the game and the database. [ODBC 17
 x86](https://go.microsoft.com/fwlink/?linkid=2361647) is the only driver that's
 supported. Just download and run the installer.
 
+# Building
+
+Install Visual Studio 2026 with the **Desktop development with C++** workload,
+including the Windows SDK and CMake tools. The Visual Studio 2026 generator
+requires CMake 4.2 or newer. Git and network access are needed for CPM to fetch
+build dependencies on the first configure.
+
+From the repository root in a Visual Studio Developer PowerShell or command
+prompt, configure once and build either configuration:
+
+```text
+cmake --preset vs2026
+cmake --build --preset vs2026-debug
+cmake --build --preset vs2026-release
+```
+
+The executables will be in the out/ folder.
+
 # Usage
 
 For local testing, at the minimum, the DBServer, one MapServer, and the Game
