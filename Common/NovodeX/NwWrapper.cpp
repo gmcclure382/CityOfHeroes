@@ -1,6 +1,10 @@
 // -------------------------------------------------------------------------------------------------------------------
 // NOVODEX SDK C WRAPPER
 // -------------------------------------------------------------------------------------------------------------------
+#if !BEACONIZER
+// Parse PhysX allocator methods before CRT debug macros redefine malloc/free.
+#include <NxPhysics.h>
+#endif
 #include "NovodeX/NwWrapper.h"
 #include <utilitieslib/utils/SuperAssert.h>
 #if NOVODEX
@@ -37,7 +41,6 @@
 
 // Basic SDK includes.
 #include <PhysXLoader.h>
-#include <NxPhysics.h>
 #include <NxPhysicsSDK.h>
 #include <NxMaterial.h>
 #include <NxScene.h>
