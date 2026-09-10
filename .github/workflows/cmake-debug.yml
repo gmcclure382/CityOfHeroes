@@ -1,4 +1,4 @@
-name: CMake Debug
+name: CMake Win32
 
 on:
   push:
@@ -11,11 +11,40 @@ permissions:
 jobs:
   build:
     runs-on: windows-2025-vs2026
+    strategy:
+      fail-fast: false
+      matrix:
+        configuration: [Debug, Release]
     steps:
       - uses: actions/checkout@v7
 
       - name: Configure
-        run: cmake -S . -B build -G "Visual Studio 18 2026" -A Win32
+        run: >-
+          cmake --preset vs2026
+          -DCOX_BUILD_UTILITIES_TESTS=ON -DCOX_BUILD_PIG_TESTS=ON
 
-      - name: Build Debug
-        run: cmake --build build --config Debug --parallel
+      - name: Build
+        run: >-
+          cmake --build out/build/vs2026
+          --config ${{ matrix.configuration }} --parallel
+
+      - name: Test utilities
+        run: >-
+          ctest --test-dir out/build/vs2026
+          -C ${{ matrix.configuration }} --output-on-failure
+
+      - name: Configure dependency checks
+        run: >-
+          cmake -S cmake/checks -B out/build/dependency-checks
+          -G "Visual Studio 18 2026" -A Win32
+          -DCPM_SOURCE_CACHE=${{ github.workspace }}/out/build/CPM
+
+      - name: Build dependency checks
+        run: >-
+          cmake --build out/build/dependency-checks
+          --config ${{ matrix.configuration }} --parallel
+
+      - name: Test dependencies
+        run: >-
+          ctest --test-dir out/build/dependency-checks
+          -C ${{ matrix.configuration }} --output-on-failure
