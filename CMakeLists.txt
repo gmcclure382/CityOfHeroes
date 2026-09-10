@@ -2,6 +2,16 @@ cmake_minimum_required(VERSION 3.24...3.31)
 
 project(CoX LANGUAGES C CXX)
 
+set(_mapserver_supported OFF)
+if(WIN32 AND MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+	set(_mapserver_supported ON)
+endif()
+option(COX_BUILD_MAPSERVER "Build MapServer (MSVC Win32 only)"
+	${_mapserver_supported})
+if(COX_BUILD_MAPSERVER AND NOT _mapserver_supported)
+	message(FATAL_ERROR "MapServer requires MSVC and 32-bit Windows (Win32)")
+endif()
+
 set(BUILD_TESTING OFF)
 set(BUILD_SHARED_LIBS OFF)
 option(COX_BUILD_UTILITIES_TESTS "Build UtilitiesLib integration checks" OFF)
@@ -48,6 +58,12 @@ if(WIN32)
 	add_subdirectory(libs/crashrpt)
 	add_subdirectory(libs/UtilitiesLib)
 	add_subdirectory(Utilities/pig)
+	if(COX_BUILD_MAPSERVER)
+		include(dependencies/Lua)
+		include(dependencies/PhysX)
+		add_subdirectory(libs/AILib)
+		add_subdirectory(MapServer)
+	endif()
 endif()
 
 # Require verification for explicit target builds as well as the default build.

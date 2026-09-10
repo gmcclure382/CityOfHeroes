@@ -6,9 +6,23 @@ has some minor feature additions.
 
 # Dependencies
 
-Most dependencies are vendored in the [3rdparty](3rdparty). Compile
-dependencies will be used automatically during compilation. Runtime
-dependencies include:
+The CMake build downloads pinned zlib, Crypto++, and Lua 5.1.5 sources through
+CPM. PhysX 2.8.4 remains in [3rdparty/PhysX](3rdparty/PhysX): MapServer requires
+its proprietary Win32 SDK and binaries. CMake stages the matching PhysX DLLs
+beside MapServer for each configuration. Other vendored packages remain for
+components that have not yet migrated to CMake.
+
+Debug staging also supplies the checked Core and Cooking binaries under the
+unsuffixed filenames requested internally by the legacy PhysX loader. No
+system-wide PhysX installation is needed for the dependency checks.
+
+The presets cache downloaded sources in `out/build/CPM`, shared between
+configurations. Set `CPM_SOURCE_CACHE` to use another cache location. The first
+configure needs network access; subsequent builds reuse the pinned sources.
+Do not edit the cache: dependency build patches belong in `cmake/patches` and
+are applied by `CPMAddPackage`.
+
+Runtime dependencies for a complete server installation include:
 
 ## SQL Server
 
@@ -52,7 +66,39 @@ cmake --build --preset vs2026-debug
 cmake --build --preset vs2026-release
 ```
 
-The executables will be in the out/ folder.
+MapServer is enabled by default for MSVC Win32. To build it specifically:
+
+```text
+cmake --build --preset vs2026-debug --target MapServer
+cmake --build --preset vs2026-release --target MapServer
+```
+
+Executables and PhysX DLLs are in `out/build/vs2026/bin/Debug` or
+`out/build/vs2026/bin/Release`. Set `COX_BUILD_MAPSERVER=OFF` to configure only
+the existing utilities. MapServer requires MSVC Win32; the MinGW preset keeps
+building the utilities with MapServer disabled. Enabling MapServer with an
+unsupported compiler or architecture is a configuration error.
+
+CMake is the authoritative build system. The handwritten Visual Studio
+projects and solution are historical and still reference removed vendored
+dependencies. This CMake build currently provides StructParser, UtilitiesLib,
+pig, AILib, and MapServer; it does not yet build Game, DBServer, or BeaconServer.
+
+## Build checks
+
+Configure with `COX_BUILD_UTILITIES_TESTS=ON` and `COX_BUILD_PIG_TESTS=ON`, build,
+then run `ctest --test-dir out/build/vs2026 -C Debug --output-on-failure` (or
+`-C Release`). Standalone dependency checks exercise zlib, Crypto++, Lua, and
+PhysX without game data or a database:
+
+```text
+cmake -S cmake/checks -B out/build/dependency-checks -G "Visual Studio 18 2026" -A Win32 -DCPM_SOURCE_CACHE=out/build/CPM
+cmake --build out/build/dependency-checks --config Debug --parallel
+ctest --test-dir out/build/dependency-checks -C Debug --output-on-failure
+```
+
+Repeat the build and tests with `Release` to check the release PhysX runtime.
+These checks do not replace starting a map against DBServer with game data.
 
 # Usage
 
