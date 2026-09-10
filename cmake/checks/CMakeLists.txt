@@ -22,3 +22,11 @@ configure_file("${cryptopp_SOURCE_DIR}/TestData/rsa1024.dat"
 if(MINGW)
 	target_link_options(cryptopp_check PRIVATE -static)
 endif()
+
+if(MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 4)
+	include(dependencies/Lua)
+	add_executable(lua_check lua.c)
+	target_compile_features(lua_check PRIVATE c_std_11)
+	target_link_libraries(lua_check PRIVATE Lua::Lua)
+	add_test(NAME LuaIntegration COMMAND lua_check)
+endif()
